@@ -1,9 +1,10 @@
+import Hero from "@/components/HomePart/Hero";
 import React from "react";
 
 export default function Home() {
   return (
     <React.Fragment>
-      <h2>Hello World</h2>
+      <Hero />
     </React.Fragment>
   );
 }

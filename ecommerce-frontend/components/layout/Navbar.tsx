@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          <div className="d-flex align-items-center">
+          <div className="mobile-navbar-actions-wrapper">
             {/* Mobile Search Icon */}
           <button 
             className="mobile-search-toggle"

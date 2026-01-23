@@ -136,14 +136,11 @@ a{
   .container{
     @include flex-between;
     gap: $spacing-lg;
-    padding: 0 $spacing-lg;
-    max-width: $container-max-width;
-    margin: 0 auto;
+
     
     @media (max-width: $breakpoint-md) {
       padding: 0 $spacing-md;
       gap: $spacing-md;
-      flex-direction: row-reverse;
     }
   }
 }
@@ -151,7 +148,15 @@ a{
 // ===========================
 // Logo
 // ===========================
-
+.mobile-navbar-actions-wrapper{
+  display: none;
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    order: 2;
+  }
+}
 .navbar-logo {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
