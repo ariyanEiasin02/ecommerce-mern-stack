@@ -11,24 +11,12 @@ import {
   FaTimes,
   FaHome,
   FaStore,
-  FaChevronDown
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const categories = [
-    "Electronics",
-    "Fashion",
-    "Home & Kitchen",
-    "Beauty & Health",
-    "Sports & Outdoors",
-    "Books & Media",
-    "Toys & Games",
-    "Groceries"
-  ];
 
   return (
     <>
@@ -40,17 +28,7 @@ const Navbar: React.FC = () => {
             <h1>E-Shop</h1>
           </Link>
 
-          {/* Category Menu Button */}
-          {/* <button 
-            className="category-btn"
-            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-          >
-            <FaBars />
-            <span>Categories</span>
-            <FaChevronDown className={isCategoryOpen ? "rotate" : ""} />
-          </button> */}
-
-          {/* Search Bar */}
+          {/* Search Bar (Desktop Only) */}
           <div className="navbar-search">
             <input 
               type="text" 
@@ -62,7 +40,7 @@ const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Right Icons */}
+          {/* Right Icons (Desktop Only) */}
           <div className="navbar-actions">
             <Link href="/wishlist" className="nav-icon-link">
               <FaHeart />
@@ -82,40 +60,27 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
+          <div className="d-flex align-items-center">
+            {/* Mobile Search Icon */}
+          <button 
+            className="mobile-search-toggle"
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            aria-label="Toggle search"
+          >
+            <FaSearch />
+          </button>
+
           {/* Mobile Menu Toggle */}
           <button 
             className="mobile-menu-toggle"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-
-          {/* Mobile Search Icon */}
-          <button 
-            className="mobile-search-toggle"
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-          >
-            <FaSearch />
-          </button>
+          </div>
         </div>
 
-        {/* Category Dropdown */}
-        {/* {isCategoryOpen && (
-          <div className="category-dropdown">
-            <div className="category-dropdown-content">
-              {categories.map((category, index) => (
-                <Link 
-                  href={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`} 
-                  key={index}
-                  className="category-item"
-                  onClick={() => setIsCategoryOpen(false)}
-                >
-                  {category}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )} */}
 
         {/* Mobile Search Bar */}
         {isSearchOpen && (
