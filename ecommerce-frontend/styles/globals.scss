@@ -283,7 +283,7 @@ a{
   display: none;
   background: none;
   border: none;
-  font-size: $font-size-xl * 1.1;
+  font-size: $font-size-xl;
   color: $white;
   cursor: pointer;
   padding: $spacing-sm;
@@ -296,14 +296,6 @@ a{
     justify-content: center;
   }
   
-  &:hover {
-    color: $primary-color;
-    background: rgba($primary-color, 0.1);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
 .mobile-search-toggle {
@@ -356,9 +348,9 @@ a{
     flex: 1;
     width: 100%;
     padding: $spacing-md;
-    border: 2px solid rgba($white, 0.2);
     border-radius: $radius-md;
     font-size: $font-size-base;
+    border: none;
     background: rgba($white, 0.95);
     color: #081621;
     outline: none;
@@ -369,8 +361,6 @@ a{
     }
     
     &:focus {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px $primary-light;
       background: $white;
     }
   }
@@ -486,98 +476,3 @@ a{
 }
 
 
-// ===========================
-// Dark Mode Support
-// ===========================
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: $dark-bg;
-    color: $dark-text;
-  }
-  
-  .main-navbar {
-    background: $dark-bg;
-    box-shadow: 0 2px 8px rgba($black, 0.3);
-    border-bottom: 1px solid $gray-800;
-  }
-  
-  .navbar-search {
-    background: $dark-bg-secondary;
-    
-    .search-input {
-      color: $dark-text;
-      
-      &::placeholder {
-        color: $gray-600;
-      }
-    }
-    
-    &:focus-within {
-      background: $gray-800;
-    }
-  }
-  
-  .nav-icon-link {
-    color: $dark-text;
-    
-    &:hover {
-      color: $primary-color;
-    }
-  }
-  
-  .category-dropdown {
-    background: $dark-bg;
-    border-top-color: $gray-800;
-    
-    .category-item {
-      color: $dark-text;
-      background: $dark-bg;
-      
-      &:hover {
-        background: $primary-color;
-        color: $white;
-      }
-    }
-  }
-  
-  .mobile-bottom-nav {
-    background: $dark-bg;
-    border-top-color: $gray-800;
-    
-    .bottom-nav-item {
-      color: $dark-text-secondary;
-      
-      &:hover,
-      &:active {
-        color: $primary-color;
-        background: rgba($primary-color, 0.15);
-      }
-    }
-  }
-  
-  .mobile-search {
-    background: $dark-bg-secondary;
-    
-    .mobile-search-input {
-      background: $dark-bg;
-      color: $dark-text;
-      border-color: $gray-700;
-      
-      &:focus {
-        border-color: $primary-color;
-        background: $gray-800;
-      }
-    }
-  }
-  
-  .mobile-menu-toggle,
-  .mobile-search-toggle {
-    color: $dark-text;
-    
-    &:hover {
-      background: $dark-bg-secondary;
-      color: $primary-color;
-    }
-  }
-}
