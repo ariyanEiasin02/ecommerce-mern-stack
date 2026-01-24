@@ -1,6 +1,7 @@
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import React from 'react';
-import CustomSlider from './CustomSlider';
+const CustomSlider = dynamic(() => import('@/components/HomePart/CustomSlider'), { ssr: true });
 
 const Hero = () => {
   return (

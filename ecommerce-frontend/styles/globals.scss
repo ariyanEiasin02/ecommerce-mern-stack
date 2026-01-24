@@ -482,7 +482,6 @@ a{
 
 .hero-section{
   padding: $spacing-2xl 0;
-  background: $gray-50;
   
   @media (max-width: $breakpoint-md) {
     padding: $spacing-lg 0;
@@ -495,7 +494,6 @@ a{
   flex: 1;
   border-radius: $radius-lg;
   overflow: hidden;
-  box-shadow: $shadow-md;
   @include transition(transform);
   cursor: pointer;
   position: relative;
@@ -590,5 +588,56 @@ a{
   height: 8px !important;
   border-radius: 2px !important;
 }
-
+.category-section {
+  padding: $spacing-2xl 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-lg 0;
+  }
+  .section-title{
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: rgba($black, 0.8);
+    margin-bottom: 48px;
+  }
+  .category-wrapper{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: $spacing-md;
+  }
+}
+.category-card{
+  padding: $spacing-md 0;
+  background-color: $white;
+  border-radius: $radius-md;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include transition(transform);
+  &:hover{
+    h3{
+      color: $primary-color;
+    }
+  }
+  .image-wrapper{
+    width: 78px;
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img{
+      width: 48px !important;
+      height: 48px !important;
+      object-fit: contain;
+    }
+  }
+  h3{
+    font-size: 16px;
+    font-weight: $font-weight-semibold;
+    color: $gray-800;
+  }
+}
 
