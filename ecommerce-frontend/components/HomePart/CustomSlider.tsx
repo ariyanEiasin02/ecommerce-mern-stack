@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay, Navigation } from 'swiper/modules';
+import { Pagination } from 'swiper/modules';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -32,7 +32,7 @@ const CustomSlider = () => {
   return (
     <div className="custom-slider">
       <Swiper
-        modules={[Pagination, Autoplay, Navigation]}
+        modules={[Pagination]}
         spaceBetween={0}
         slidesPerView={1}
         pagination={{
