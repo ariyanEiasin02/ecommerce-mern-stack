@@ -1,5 +1,6 @@
 import Category from "@/components/HomePart/Category";
 import Hero from "@/components/HomePart/Hero";
+import NewArrivals from "@/components/HomePart/NewArrivals";
 import React from "react";
 
 export default function Home() {
@@ -7,6 +8,7 @@ export default function Home() {
     <React.Fragment>
       <Hero />
       <Category />
+      <NewArrivals />
     </React.Fragment>
   );
 }

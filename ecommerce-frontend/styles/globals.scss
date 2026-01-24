@@ -640,4 +640,30 @@ a{
     color: $gray-800;
   }
 }
+.section-top{
+  @include flex-between;
+  margin-bottom: 48px;
+  .section-top-title{
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: rgba($black, 0.8);
+    margin: 0;
+  }
+  button{
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $primary-color;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    background: none;
+    svg{
+      font-size: 20px;
+      color: $primary-color;
+      margin-top: 1px;
+    }
+  }
+}
 
