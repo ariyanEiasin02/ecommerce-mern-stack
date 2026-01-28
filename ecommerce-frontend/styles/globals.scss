@@ -28,7 +28,12 @@
     transform: translateY(-2px);
   }
 }
-
+@media (min-width: 1200px) {
+  .col-xl-2-5 {
+    flex: 0 0 20% ;
+    max-width: 20%;
+  }
+}
 @mixin badge($size: 20px) {
   position: absolute;
   background: $primary-color;
@@ -674,10 +679,6 @@ a{
   cursor: pointer;
   position: relative;
   @include transition(all);
-  
-  &:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
 
   .product-image-wrapper {
     position: relative;
@@ -687,7 +688,7 @@ a{
     .product-image-container {
       position: relative;
       width: 100%;
-      padding-top: 125%; // 4:5 aspect ratio
+      height: 260px;
       overflow: hidden;
 
       .product-image {
