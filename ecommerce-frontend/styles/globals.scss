@@ -28,12 +28,6 @@
     transform: translateY(-2px);
   }
 }
-@media (min-width: 1200px) {
-  .col-xl-2-5 {
-    flex: 0 0 20% ;
-    max-width: 20%;
-  }
-}
 @mixin badge($size: 20px) {
   position: absolute;
   background: $primary-color;
@@ -503,9 +497,6 @@ a{
   cursor: pointer;
   position: relative;
   min-height: 238px;
-
-  
-  
   .banner-image {
     width: 100%;
     height: 238px;
@@ -671,7 +662,13 @@ a{
     }
   }
 }
-
+.section-header{
+  padding: $spacing-2xl 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-lg 0;
+  }
+}
 .product-card{
   background-color: $white;
   border-radius: $radius-md;
