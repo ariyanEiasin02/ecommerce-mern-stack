@@ -1,3 +1,4 @@
+import BestSellingProducts from "@/components/HomePart/BestSellingProducts";
 import Category from "@/components/HomePart/Category";
 import Hero from "@/components/HomePart/Hero";
 import NewArrivals from "@/components/HomePart/NewArrivals";
@@ -11,6 +12,7 @@ export default function Home() {
       <Category />
       <NewArrivals />
       <TrendingProducts />
+      <BestSellingProducts />
     </React.Fragment>
   );
 }
