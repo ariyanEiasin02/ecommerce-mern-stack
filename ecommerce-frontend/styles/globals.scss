@@ -990,3 +990,74 @@ a{
     }
   }
 }
+.ecom-sidebar {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 15px;
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  .accordion-item {
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .accordion-button {
+    background: transparent;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &::after {
+      background-size: 14px;
+    }
+
+    &:not(.collapsed) {
+      color: #0d6efd;
+      background: transparent;
+    }
+  }
+
+  .sidebar-icon {
+    font-size: 18px;
+    color: #555;
+  }
+
+  .accordion-body {
+    padding: 8px 0 12px 28px;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        font-size: 13px;
+        color: #666;
+        padding: 6px 0;
+        cursor: pointer;
+        transition: color 0.3s;
+
+        &:hover {
+          color: #0d6efd;
+        }
+      }
+    }
+  }
+}

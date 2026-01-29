@@ -1,13 +1,17 @@
-import React from "react";
-import SectionTop from "../common/SectionTop";
-import ProductCard from "../card/ProductCard";
+import React from 'react'
+import ProductCard from '../card/ProductCard'
+import SideBar from './SideBar'
 
-const TrendingProducts = () => {
+const ProductList = () => {
   return (
-    <section>
+    <section className="product-list-section">
       <div className="container">
-        <SectionTop title="Trending Products"/>
-        <div className="row g-4">
+        <div className="row">
+            <div className="col-lg-2">
+                <SideBar />
+            </div>
+            <div className="col-lg-10">
+                        <div className="row g-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
             <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={item}>
               <ProductCard
@@ -24,9 +28,11 @@ const TrendingProducts = () => {
             </div>
           ))}
         </div>
-      </div>
+            </div>
+        </div>
+        </div>
     </section>
-  );
-};
+  )
+}
 
-export default TrendingProducts;
+export default ProductList
