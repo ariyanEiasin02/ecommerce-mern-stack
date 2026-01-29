@@ -19,8 +19,6 @@ const TopRatedProducts = () => {
                                 "/hero1.webp",
                                 "https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg"
                             ]}
-                            rating={5}
-                            reviews={1}
                             isTrending={true}
                         />
                     </div>

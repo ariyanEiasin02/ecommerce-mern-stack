@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
+import SoldBar from "./SoldBar";
 
 interface ProductCardProps {
   id?: string;
@@ -9,8 +10,6 @@ interface ProductCardProps {
   originalPrice?: number;
   discount?: number;
   images: string[];
-  rating?: number;
-  reviews?: number;
   isTrending?: boolean;
 }
 
@@ -21,8 +20,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   originalPrice,
   discount,
   images,
-  rating = 0,
-  reviews = 0,
   isTrending = false,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -102,17 +99,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Product Info */}
       <div className="product-details">
-        {reviews > 0 && (
-          <div className="product-rating">
-            <span className="star">★</span>
-            <span className="review-count">
-              {reviews} review{reviews > 1 ? "s" : ""}
-            </span>
-          </div>
-        )}
-
-        <h3 className="product-name">{name}</h3>
-
         <div className="product-price">
           <span className="current-price">${price.toFixed(2)}</span>
           {originalPrice && originalPrice > price && (
@@ -121,6 +107,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           )}
         </div>
+        <h3 className="product-name">{name}</h3>
+          <SoldBar sold={750} total={1000} />
       </div>
     </div>
   );
