@@ -9,7 +9,7 @@ const NewArrivals = () => {
         <SectionTop title="New Arrivals" />
         <div className="row g-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={item}>
+            <div className="col-xl-2 col-lg-3 col-md-4 col-6" key={item}>
               <ProductCard
                 name="Basic High-Neck Puff Jacket"
                 price={69.0}
