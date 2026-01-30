@@ -2,14 +2,14 @@ import React from "react";
 import SectionTop from "../common/SectionTop";
 import ProductCard from "../card/ProductCard";
 
-const NewArrivals = () => {
+const TrendingProducts = () => {
   return (
-    <section className="section-header">
+    <section>
       <div className="container">
-        <SectionTop title="New Arrivals" />
+        <SectionTop title="Trending Products"/>
         <div className="row g-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div className="col-xl-2 col-lg-3 col-md-4 col-6" key={item}>
+            <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={item}>
               <ProductCard
                 name="Basic High-Neck Puff Jacket"
                 price={69.0}
@@ -29,4 +29,4 @@ const NewArrivals = () => {
   );
 };
 
-export default NewArrivals;
+export default TrendingProducts;

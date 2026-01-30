@@ -1,15 +1,19 @@
-import React from "react";
-import SectionTop from "../common/SectionTop";
-import ProductCard from "../card/ProductCard";
+import React from 'react'
+import ProductCard from '../card/ProductCard'
+import SideBar from './SideBar'
 
-const NewArrivals = () => {
+const ProductList = () => {
   return (
-    <section className="section-header">
+    <section className="product-list-section">
       <div className="container">
-        <SectionTop title="New Arrivals" />
-        <div className="row g-4">
+        <div className="row">
+            <div className="col-lg-2">
+                <SideBar />
+            </div>
+            <div className="col-lg-10">
+                        <div className="row g-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div className="col-xl-2 col-lg-3 col-md-4 col-6" key={item}>
+            <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={item}>
               <ProductCard
                 name="Basic High-Neck Puff Jacket"
                 price={69.0}
@@ -24,9 +28,11 @@ const NewArrivals = () => {
             </div>
           ))}
         </div>
-      </div>
+            </div>
+        </div>
+        </div>
     </section>
-  );
-};
+  )
+}
 
-export default NewArrivals;
+export default ProductList
