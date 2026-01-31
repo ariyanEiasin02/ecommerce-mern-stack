@@ -1,11 +1,13 @@
 import React from 'react'
 import ProductCard from '../card/ProductCard'
 import SideBar from './SideBar'
+import Breadcrumb from '../common/Breadcrumb'
 
 const ProductList = () => {
   return (
     <section className="product-list-section">
       <div className="container">
+        <Breadcrumb items={[{ label: 'Shop', href: '/shop' }, { label: 'All Products' }]} />
         <div className="row">
             <div className="col-lg-2">
                 <SideBar />
