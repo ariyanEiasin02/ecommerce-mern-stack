@@ -75,7 +75,6 @@ const SideBar = () => {
               >
                 <i className="fi fi-rr-tshirt sidebar-icon"></i>
                 Men Fashion
-                <span className="item-count">(156)</span>
               </button>
             </h2>
             <div
@@ -116,7 +115,6 @@ const SideBar = () => {
               >
                 <i className="fi fi-rr-dress sidebar-icon"></i>
                 Women Fashion
-                <span className="item-count">(243)</span>
               </button>
             </h2>
             <div
@@ -157,7 +155,6 @@ const SideBar = () => {
               >
                 <i className="fi fi-rr-laptop sidebar-icon"></i>
                 Electronics
-                <span className="item-count">(187)</span>
               </button>
             </h2>
             <div
