@@ -1177,8 +1177,8 @@ a{
           width: 0;
 
           &:checked ~ .checkbox-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background-color: $primary-color;
+            border-color: $primary-color;
 
             &::after {
               display: block;
@@ -1186,7 +1186,7 @@ a{
           }
 
           &:checked ~ .radio-custom {
-            border-color: #667eea;
+            border-color: $primary-color;
 
             &::after {
               display: block;
@@ -1240,16 +1240,16 @@ a{
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color:$primary-color;
           }
         }
 
         &:hover {
-          color: #667eea;
+          color: $primary-color;
 
           .checkbox-custom,
           .radio-custom {
-            border-color: #667eea;
+            border-color: $primary-color;
           }
         }
       }
@@ -1292,47 +1292,47 @@ a{
   .accordion-button {
     background: transparent;
     padding: 14px 0;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
-    color: #374151;
+    color: rgba($black, 0.7);
     box-shadow: none;
     display: flex;
     align-items: center;
+    background-image: none;
     gap: 10px;
-    position: relative;
     transition: all 0.3s ease;
-
+    .sidebar-icon {
+      margin-top: 4px;
+      color: rgba($black, 0.7);
+      font-size: 18px;
+    }
+    &:focus {
+      box-shadow: none !important;
+      border-color: transparent !important;
+      outline: none !important;
+    }
     .item-count {
       margin-left: auto;
-      font-size: 12px;
-      color: #9ca3af;
-      font-weight: 500;
-      background: #f3f4f6;
-      padding: 2px 8px;
-      border-radius: 10px;
+      font-size: 16px;
+      color: rgba($black, 0.7);
+      margin-top: 2px;
     }
 
     &::after {
-      background-size: 14px;
-      margin-left: 10px;
+      display: none;
+      
     }
 
     &:not(.collapsed) {
-      color: #667eea;
+      color: $primary-color;
       background: transparent;
-
-      .sidebar-icon {
-        color: #667eea;
-      }
-
       .item-count {
-        background: #e0e7ff;
-        color: #667eea;
+        color: $primary-color;
+        transform: rotate(180deg);
       }
-    }
-
-    &:hover {
-      background: #f9fafb;
+      .sidebar-icon {
+        color: $primary-color;
+      }
     }
   }
 
