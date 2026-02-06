@@ -155,6 +155,7 @@ const SideBar = () => {
               >
                 <i className="fi fi-rr-laptop sidebar-icon"></i>
                 Electronics
+                <span className="item-count"><i className="fi fi-rs-angle-down"></i></span>
               </button>
             </h2>
             <div
@@ -231,7 +232,7 @@ const SideBar = () => {
                     <i
                       key={i}
                       className={`fi ${
-                        i < rating ? "fi-sr-star" : "fi-rr-star"
+                        i < rating ? "fi-ss-star" : "fi-rr-star"
                       }`}
                     ></i>
                   ))}
