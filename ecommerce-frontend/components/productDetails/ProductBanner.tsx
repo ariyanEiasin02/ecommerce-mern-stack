@@ -1,5 +1,6 @@
 import React from 'react'
 import ProductImage from './ProductImage'
+import ProductContent from './ProductContent'
 
 const ProductBanner = () => {
   return (
@@ -9,7 +10,9 @@ const ProductBanner = () => {
         <div className="col-lg-6">
           <ProductImage/>
         </div>
-        <div className="col-lg-6">data2</div>
+        <div className="col-lg-6">
+          <ProductContent/>
+        </div>
       </div>
     </div>
    </section>
