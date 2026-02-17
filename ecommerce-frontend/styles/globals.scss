@@ -860,6 +860,7 @@ a{
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      line-clamp: 2;
     }
     
     .product-price {
@@ -1633,3 +1634,8 @@ a{
     user-select: none;
   }
 }
+
+// ===========================
+// Import Product Details Styles
+// ===========================
+@import './productDetails';
