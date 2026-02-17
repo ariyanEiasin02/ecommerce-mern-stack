@@ -2,16 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
 import { ProductImage as ProductImageType } from '@/types/product';
-import type { Swiper as SwiperType } from 'swiper';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/thumbs';
-import 'swiper/css/free-mode';
 
 interface ProductImageGalleryProps {
   images: ProductImageType[];
@@ -28,7 +19,6 @@ const ProductImage: React.FC<ProductImageGalleryProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
   const handleThumbnailClick = (index: number) => {
     setSelectedImage(index);
@@ -47,128 +37,177 @@ const ProductImage: React.FC<ProductImageGalleryProps> = ({
   }
 
   return (
-    <div className="product-image">
-      {/* Main Image Swiper */}
-      <div className="product-image__main">
-        <Swiper
-          modules={[Navigation, Thumbs]}
-          navigation
-          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-          spaceBetween={10}
-          slidesPerView={1}
-          className="product-image__main-swiper"
-          onSlideChange={(swiper) => setSelectedImage(swiper.activeIndex)}
-        >
-          {images.map((image, index) => (
-            <SwiperSlide key={image.id || index}>
-              <div className="product-image__main-wrapper">
-                <Image
-                  src={image.url || '/placeholder.jpg'}
-                  alt={image.alt || productName}
-                  width={600}
-                  height={600}
-                  className="product-image__main-img"
-                  priority={index === 0}
-                  quality={90}
-                />
-                
-                {/* Badges */}
-                {index === 0 && (
-                  <div className="product-image__badges">
-                    {image.isPrimary && (
-                      <span className="badge bg-primary">Featured</span>
+    <div className="product-image-gallery">
+      <div className="product-image-gallery__container">
+        {/* Vertical Thumbnails - Left Side */}
+        {images.length > 1 && (
+          <div className="product-image-gallery__thumbnails">
+            <div className="product-image-gallery__thumbnails-wrapper">
+              {images.map((image, index) => (
+                <div
+                  key={image.id || index}
+                  onClick={() => handleThumbnailClick(index)}
+                  className={`product-image-gallery__thumbnail ${
+                    selectedImage === index ? 'product-image-gallery__thumbnail--active' : ''
+                  }`}
+                >
+                  <div className="product-image-gallery__thumbnail-inner">
+                    <Image
+                      src={image.url}
+                      alt={image.alt || `${productName} view ${index + 1}`}
+                      width={100}
+                      height={100}
+                      className="product-image-gallery__thumbnail-img"
+                      quality={70}
+                    />
+                    {/* Video Play Icon Indicator */}
+                    {image.url?.includes('video') && (
+                      <div className="product-image-gallery__video-indicator">
+                        <i className="fi fi-rr-play"></i>
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-        {/* Action Buttons */}
-        <div className="product-image__actions">
-          <button
-            onClick={handleZoomToggle}
-            className="product-image__action-btn product-image__action-btn--zoom"
-            aria-label="Zoom image"
-            title="Zoom"
-          >
-            <i className="fi fi-rr-search-alt"></i>
-          </button>
-          
-          <button
-            onClick={onWishlistToggle}
-            className={`product-image__action-btn product-image__action-btn--wishlist ${
-              isWishlisted ? 'product-image__action-btn--active' : ''
-            }`}
-            aria-label="Add to wishlist"
-            title="Add to Wishlist"
-          >
-            <i className={isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rr-heart'}></i>
-          </button>
+        {/* Main Image Display */}
+        <div className="product-image-gallery__main">
+          <div className="product-image-gallery__main-bg">
+            {/* Gradient Background Circle */}
+            <div className="product-image-gallery__gradient-circle"></div>
+            
+            {/* Main Product Image */}
+            <div className="product-image-gallery__main-wrapper">
+              <Image
+                src={images[selectedImage]?.url || '/placeholder.jpg'}
+                alt={images[selectedImage]?.alt || productName}
+                width={700}
+                height={700}
+                className="product-image-gallery__main-img"
+                priority={selectedImage === 0}
+                quality={95}
+              />
+              
+              {/* Badges */}
+              {images[selectedImage]?.isPrimary && (
+                <div className="product-image-gallery__badges">
+                  <span className="badge bg-primary">
+                    <i className="fi fi-rr-star me-1"></i>
+                    Featured
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons - Top Right */}
+            <div className="product-image-gallery__actions">
+              <button
+                onClick={handleZoomToggle}
+                className="product-image-gallery__action-btn product-image-gallery__action-btn--zoom"
+                aria-label="Zoom image"
+                title="Zoom to full size"
+              >
+                <i className="fi fi-rr-search-plus"></i>
+              </button>
+              
+              <button
+                onClick={onWishlistToggle}
+                className={`product-image-gallery__action-btn product-image-gallery__action-btn--wishlist ${
+                  isWishlisted ? 'product-image-gallery__action-btn--active' : ''
+                }`}
+                aria-label="Add to wishlist"
+                title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <i className={isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rr-heart'}></i>
+              </button>
+            </div>
+
+            {/* Image Counter */}
+            <div className="product-image-gallery__counter">
+              <span className="product-image-gallery__counter-text">
+                {selectedImage + 1} / {images.length}
+              </span>
+            </div>
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={() => setSelectedImage(selectedImage > 0 ? selectedImage - 1 : images.length - 1)}
+                  className="product-image-gallery__nav product-image-gallery__nav--prev"
+                  aria-label="Previous image"
+                >
+                  <i className="fi fi-rr-angle-left"></i>
+                </button>
+                <button
+                  onClick={() => setSelectedImage(selectedImage < images.length - 1 ? selectedImage + 1 : 0)}
+                  className="product-image-gallery__nav product-image-gallery__nav--next"
+                  aria-label="Next image"
+                >
+                  <i className="fi fi-rr-angle-right"></i>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Thumbnail Gallery Swiper */}
-      {images.length > 1 && (
-        <div className="product-image__thumbnails">
-          <Swiper
-            modules={[FreeMode, Thumbs]}
-            onSwiper={setThumbsSwiper}
-            spaceBetween={10}
-            slidesPerView={4}
-            freeMode={true}
-            watchSlidesProgress={true}
-            className="product-image__thumbnails-swiper"
-            breakpoints={{
-              320: { slidesPerView: 3 },
-              480: { slidesPerView: 4 },
-              768: { slidesPerView: 5 },
-            }}
-          >
-            {images.map((image, index) => (
-              <SwiperSlide key={image.id || index}>
-                <div className="product-image__thumbnail">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || `${productName} thumbnail ${index + 1}`}
-                    width={100}
-                    height={100}
-                    className="product-image__thumbnail-img"
-                    quality={70}
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      )}
 
       {/* Zoom Modal */}
       {isZoomed && (
         <div 
-          className="product-image__zoom-modal" 
+          className="product-image-gallery__zoom-modal" 
           onClick={handleZoomToggle}
           role="dialog"
           aria-modal="true"
           aria-label="Zoomed product image"
         >
-          <div className="product-image__zoom-content">
+          <div className="product-image-gallery__zoom-content" onClick={(e) => e.stopPropagation()}>
             <button 
-              className="product-image__zoom-close" 
+              className="product-image-gallery__zoom-close" 
               onClick={handleZoomToggle}
-              aria-label="Close zoom"
+              aria-label="Close zoom view"
             >
-              ×
+              <i className="fi fi-rr-cross"></i>
             </button>
-            <Image
-              src={images[selectedImage]?.url || '/placeholder.jpg'}
-              alt={images[selectedImage]?.alt || productName}
-              width={1200}
-              height={1200}
-              className="product-image__zoom-img"
-              quality={100}
-            />
+            <div className="product-image-gallery__zoom-wrapper">
+              <Image
+                src={images[selectedImage]?.url || '/placeholder.jpg'}
+                alt={images[selectedImage]?.alt || productName}
+                width={1200}
+                height={1200}
+                className="product-image-gallery__zoom-img"
+                quality={100}
+              />
+            </div>
+            {/* Zoom Navigation */}
+            {images.length > 1 && (
+              <div className="product-image-gallery__zoom-nav">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(selectedImage > 0 ? selectedImage - 1 : images.length - 1);
+                  }}
+                  className="product-image-gallery__zoom-nav-btn"
+                >
+                  <i className="fi fi-rr-angle-left"></i>
+                </button>
+                <span className="product-image-gallery__zoom-counter">
+                  {selectedImage + 1} / {images.length}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(selectedImage < images.length - 1 ? selectedImage + 1 : 0);
+                  }}
+                  className="product-image-gallery__zoom-nav-btn"
+                >
+                  <i className="fi fi-rr-angle-right"></i>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
