@@ -141,72 +141,6 @@ async function getProduct(slug: string): Promise<Product> {
   };
 }
 
-// Mock function to fetch related products
-async function getRelatedProducts(_productId: string): Promise<Product[]> {
-  return [
-    {
-      id: '2',
-      slug: 'mens-casual-henley-shirt',
-      name: "George Men's Big & Tall 100% Cotton Crew Shirt",
-      description: 'Comfortable casual shirt for everyday wear.',
-      price: 220000,
-      currency: 'Rp',
-      stock: 80,
-      sku: 'GE-HENLEY-BLK',
-      availability: 'in_stock',
-      images: [{ id: '1', url: '/hero2.webp', alt: 'Casual Crew Shirt' }],
-      rating: 4.4,
-      reviewCount: 203,
-      category: 'Fashion',
-      brand: 'George',
-      shipping: { freeShipping: true, estimatedDays: '2-4 days' },
-      createdAt: '2026-01-20',
-      updatedAt: '2026-02-10',
-      newArrival: true,
-    },
-    {
-      id: '3',
-      slug: 'mens-easy-reader-watch',
-      name: "Men's Easy Reader Date Black/Silver Watch",
-      description: 'Classic easy-reader dress watch.',
-      price: 450000,
-      currency: 'Rp',
-      stock: 15,
-      sku: 'TIM-ER-BSW',
-      availability: 'in_stock',
-      images: [{ id: '1', url: '/hero2.webp', alt: 'Easy Reader Watch' }],
-      rating: 4.7,
-      reviewCount: 512,
-      category: 'Accessories',
-      brand: 'Timex',
-      shipping: { freeShipping: true, estimatedDays: '3-5 days' },
-      createdAt: '2026-01-10',
-      updatedAt: '2026-02-12',
-      bestseller: true,
-    },
-    {
-      id: '4',
-      slug: 'sport-running-shoes',
-      name: 'Sport Running Shoes for Men Mesh Breathable',
-      description: 'Lightweight breathable running shoes.',
-      price: 330000,
-      originalPrice: 420000,
-      currency: 'Rp',
-      stock: 60,
-      sku: 'SR-MESH-BLK',
-      availability: 'in_stock',
-      images: [{ id: '1', url: '/hero2.webp', alt: 'Running Shoes' }],
-      rating: 4.5,
-      reviewCount: 318,
-      category: 'Footwear',
-      brand: 'SportMax',
-      shipping: { freeShipping: true, estimatedDays: '2-3 days' },
-      createdAt: '2026-01-25',
-      updatedAt: '2026-02-14',
-    },
-  ];
-}
-
 // Generate metadata for SEO
 export async function generateMetadata({ 
   params 
@@ -252,7 +186,6 @@ export default async function ProductPage({
   params: { slug: string } 
 }) {
   const product = await getProduct(params.slug);
-  const relatedProducts = await getRelatedProducts(product.id);
 
   // JSON-LD structured data for SEO
   const jsonLd = {
@@ -317,7 +250,7 @@ export default async function ProductPage({
 
         {/* Related Products */}
         <div className="mt-5 mb-5">
-          <RelatedProducts products={relatedProducts} />
+          <RelatedProducts/>
         </div>
       </div>
     </React.Fragment>
