@@ -11,202 +11,199 @@ async function getProduct(slug: string): Promise<Product> {
   // TODO: Replace with actual API call
   // const response = await fetch(`${process.env.API_URL}/products/${slug}`);
   // return response.json();
-  
-  // Mock data for demonstration
+
+  // Mock data – Ben Hogan Golf Polo Shirt
   return {
     id: '1',
     slug: slug,
-    name: 'Premium Wireless Headphones',
-    description: `<p>Experience superior sound quality with our Premium Wireless Headphones. 
-      Featuring advanced noise cancellation technology, ergonomic design, and up to 30 hours of battery life.</p>
-      <p>These headphones are perfect for music lovers, professionals, and anyone who values high-quality audio. 
-      The over-ear design provides maximum comfort for extended listening sessions.</p>
-      <h4>Advanced Features:</h4>
+    name: "This Ben Hogan Men's Solid Ottoman Golf Polo Shirt",
+    description: `<p>This Ben Hogan Men's Solid Ottoman Golf Polo Shirt makes for versatile casual wear or golf apparel.
+      Built-in moisture wicking and sun protection keep you feeling dry while blocking out harmful UV rays.</p>
+      <p>Durable textured Ottoman fabric and a ribbed collar with three-button placket give it classic polo style.
+      The solid color makes this golf top easy to pair up with any pants or shorts for style that looks great both on and off the course.</p>
+      <h4>Key Features:</h4>
       <ul>
-        <li>Active Noise Cancellation (ANC) technology</li>
-        <li>High-fidelity audio with deep bass</li>
-        <li>Multi-device connectivity via Bluetooth 5.0</li>
-        <li>Touch controls for easy operation</li>
-        <li>Foldable design with premium carrying case</li>
+        <li>Moisture Wicking technology</li>
+        <li>Stretchy, comfortable fit</li>
+        <li>SPF/UV Protection</li>
+        <li>Easy Care – machine washable</li>
+        <li>Ottoman textured fabric</li>
+        <li>Ribbed collar with three-button placket</li>
       </ul>`,
-    shortDescription: 'Premium wireless headphones with active noise cancellation and 30-hour battery life.',
-    price: 299.99,
-    originalPrice: 399.99,
-    currency: '$',
-    stock: 45,
-    sku: 'WH-1000XM5-BLK',
+    shortDescription:
+      "Built-in moisture wicking and sun protection keep you feeling dry. Ottoman fabric with a ribbed collar for classic polo style.",
+    price: 187500,
+    originalPrice: 250000,
+    currency: 'Rp',
+    soldCount: 10000,
+    stock: 42,
+    sku: 'BH-POLO-BLK-M',
     availability: 'in_stock',
     images: [
       {
         id: '1',
-        url: '/images/products/headphones-1.jpg',
-        alt: 'Premium Wireless Headphones - Front View',
-        isPrimary: true
+        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
+        alt: "Ben Hogan Golf Polo Shirt – Front View",
+        isPrimary: true,
       },
       {
         id: '2',
-        url: '/images/products/headphones-2.jpg',
-        alt: 'Premium Wireless Headphones - Side View'
+        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
+        alt: "Ben Hogan Golf Polo Shirt – Side View",
       },
       {
         id: '3',
-        url: '/images/products/headphones-3.jpg',
-        alt: 'Premium Wireless Headphones - Folded'
+        url: '/hero2.webp',
+        alt: "Ben Hogan Golf Polo Shirt – Back View",
       },
       {
         id: '4',
-        url: '/images/products/headphones-4.jpg',
-        alt: 'Premium Wireless Headphones - In Use'
-      }
+        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
+        alt: "Ben Hogan Golf Polo Shirt – Detail",
+      },
+      {
+        id: '5',
+        url: '/hero2.webp',
+        alt: "Ben Hogan Golf Polo Shirt – Lifestyle",
+      },
     ],
-    rating: 4.7,
-    reviewCount: 328,
+    rating: 4.8,
+    reviewCount: 188,
     reviews: [
       {
         id: '1',
         userId: 'user1',
-        userName: 'John Smith',
+        userName: 'Ahmad Rizaldi',
         rating: 5,
-        title: 'Excellent sound quality!',
-        comment: 'These headphones exceeded my expectations. The noise cancellation works perfectly, and the sound quality is amazing.',
+        title: 'Great quality polo shirt!',
+        comment:
+          'The fabric is comfortable and breathable. Size is true to label. Very satisfied with the purchase.',
         date: '2026-02-10',
         verified: true,
-        helpful: 24
+        helpful: 34,
       },
       {
         id: '2',
         userId: 'user2',
-        userName: 'Sarah Johnson',
-        rating: 4,
-        title: 'Great but pricey',
-        comment: 'Love the comfort and sound, but the price is a bit steep. Still worth it for the quality.',
+        userName: 'Budi Santoso',
+        rating: 5,
+        title: 'Perfect for golf and casual wear',
+        comment:
+          "Bought this for my weekly golf sessions and it's amazing. The moisture wicking really works.",
         date: '2026-02-08',
         verified: true,
-        helpful: 15
-      }
+        helpful: 21,
+      },
     ],
-    category: 'Electronics',
-    subcategory: 'Audio',
-    brand: 'AudioTech',
-    tags: ['wireless', 'noise-cancelling', 'premium', 'bluetooth'],
-    sizes: [],
+    category: 'Fashion',
+    subcategory: 'Men Tops',
+    brand: 'Ben Hogan',
+    tags: ['polo', 'golf', 'mens', 'moisture-wicking', 'spf'],
+    sizes: [
+      { id: 's1', name: 'S', value: 'S', available: true },
+      { id: 's2', name: 'M', value: 'M', available: true },
+      { id: 's3', name: 'L', value: 'L', available: true },
+      { id: 's4', name: 'XL', value: 'XL', available: true },
+      { id: 's5', name: '2XL', value: '2XL', available: true },
+      { id: 's6', name: '3XL', value: '3XL', available: false },
+    ],
     colors: [
-      { id: 'c1', name: 'Midnight Black', value: '#000000', available: true },
-      { id: 'c2', name: 'Silver', value: '#C0C0C0', available: true },
-      { id: 'c3', name: 'Navy Blue', value: '#001F3F', available: false }
+      { id: 'c1', name: 'Midnight Black', value: '#1a1a1a', available: true },
+      { id: 'c2', name: 'Light Gray', value: '#d1d5db', available: true },
     ],
     specifications: [
-      { label: 'Driver Size', value: '40mm' },
-      { label: 'Frequency Response', value: '4Hz - 40kHz' },
-      { label: 'Impedance', value: '47 Ohms' },
-      { label: 'Battery Life', value: 'Up to 30 hours' },
-      { label: 'Charging Time', value: '3 hours (USB-C fast charging)' },
-      { label: 'Bluetooth Version', value: '5.0' },
-      { label: 'Weight', value: '250g' },
-      { label: 'Cable Length', value: '1.2m (detachable)' },
-      { label: 'Noise Cancellation', value: 'Active (ANC)' },
-      { label: 'Microphone', value: 'Built-in with echo cancellation' }
+      { label: 'Package Dimensions', value: '27.3 x 24.8 x 4.9 cm; 180 g' },
+      { label: 'Specification', value: 'Moisture Wicking, Stretchy, SPF/UV Protection, Easy Care' },
+      { label: 'Date First Available', value: 'August 08, 2023' },
+      { label: 'Department', value: 'Mens' },
     ],
+    seller: {
+      id: 'seller1',
+      name: 'Barudak Disaster Mall',
+      verified: true,
+      rating: 96,
+      location: 'Tulungagung',
+      chatReply: 98,
+    },
     shipping: {
       freeShipping: true,
-      estimatedDays: '3-5 business days'
+      estimatedDays: '2-4 business days',
     },
-    metaTitle: 'Premium Wireless Headphones - Active Noise Cancellation | AudioTech',
-    metaDescription: 'Shop Premium Wireless Headphones with active noise cancellation, 30-hour battery, and superior sound quality. Free shipping available.',
-    keywords: ['wireless headphones', 'noise cancelling headphones', 'premium audio', 'bluetooth headphones'],
-    createdAt: '2026-01-15',
+    metaTitle: "Ben Hogan Men's Solid Ottoman Golf Polo Shirt | Free Shipping",
+    metaDescription:
+      "Shop Ben Hogan Men's Solid Ottoman Golf Polo Shirt. Moisture wicking, SPF/UV protection, stretchy comfort. Great for golf and casual wear.",
+    keywords: ['polo shirt', 'golf shirt', 'mens polo', 'moisture wicking shirt'],
+    createdAt: '2023-08-08',
     updatedAt: '2026-02-15',
     featured: true,
     bestseller: true,
-    relatedProducts: ['2', '3', '4', '5']
+    relatedProducts: ['2', '3', '4', '5'],
   };
 }
 
 // Mock function to fetch related products
-async function getRelatedProducts(productId: string): Promise<Product[]> {
-  // TODO: Replace with actual API call
+async function getRelatedProducts(_productId: string): Promise<Product[]> {
   return [
     {
       id: '2',
-      slug: 'wireless-earbuds-pro',
-      name: 'Wireless Earbuds Pro',
-      description: 'Compact wireless earbuds',
-      price: 149.99,
-      originalPrice: 199.99,
-      currency: '$',
-      stock: 120,
-      sku: 'EB-PRO-WHT',
+      slug: 'mens-casual-henley-shirt',
+      name: "George Men's Big & Tall 100% Cotton Crew Shirt",
+      description: 'Comfortable casual shirt for everyday wear.',
+      price: 220000,
+      currency: 'Rp',
+      stock: 80,
+      sku: 'GE-HENLEY-BLK',
       availability: 'in_stock',
-      images: [{ id: '1', url: '/images/products/earbuds-1.jpg', alt: 'Wireless Earbuds' }],
-      rating: 4.5,
-      reviewCount: 156,
-      category: 'Electronics',
-      brand: 'AudioTech',
+      images: [{ id: '1', url: '/hero2.webp', alt: 'Casual Crew Shirt' }],
+      rating: 4.4,
+      reviewCount: 203,
+      category: 'Fashion',
+      brand: 'George',
       shipping: { freeShipping: true, estimatedDays: '2-4 days' },
       createdAt: '2026-01-20',
       updatedAt: '2026-02-10',
-      newArrival: true
+      newArrival: true,
     },
     {
       id: '3',
-      slug: 'studio-monitor-headphones',
-      name: 'Studio Monitor Headphones',
-      description: 'Professional studio headphones',
-      price: 349.99,
-      currency: '$',
-      stock: 30,
-      sku: 'SM-500-BLK',
+      slug: 'mens-easy-reader-watch',
+      name: "Men's Easy Reader Date Black/Silver Watch",
+      description: 'Classic easy-reader dress watch.',
+      price: 450000,
+      currency: 'Rp',
+      stock: 15,
+      sku: 'TIM-ER-BSW',
       availability: 'in_stock',
-      images: [{ id: '1', url: '/images/products/studio-1.jpg', alt: 'Studio Headphones' }],
-      rating: 4.8,
-      reviewCount: 89,
-      category: 'Electronics',
-      brand: 'AudioTech',
+      images: [{ id: '1', url: '/hero2.webp', alt: 'Easy Reader Watch' }],
+      rating: 4.7,
+      reviewCount: 512,
+      category: 'Accessories',
+      brand: 'Timex',
       shipping: { freeShipping: true, estimatedDays: '3-5 days' },
       createdAt: '2026-01-10',
       updatedAt: '2026-02-12',
-      bestseller: true
+      bestseller: true,
     },
     {
       id: '4',
-      slug: 'gaming-headset-rgb',
-      name: 'Gaming Headset RGB',
-      description: 'Gaming headset with RGB lighting',
-      price: 129.99,
-      originalPrice: 169.99,
-      currency: '$',
-      stock: 8,
-      sku: 'GH-RGB-BLK',
-      availability: 'low_stock',
-      images: [{ id: '1', url: '/images/products/gaming-1.jpg', alt: 'Gaming Headset' }],
-      rating: 4.3,
-      reviewCount: 245,
-      category: 'Electronics',
-      brand: 'GameTech',
+      slug: 'sport-running-shoes',
+      name: 'Sport Running Shoes for Men Mesh Breathable',
+      description: 'Lightweight breathable running shoes.',
+      price: 330000,
+      originalPrice: 420000,
+      currency: 'Rp',
+      stock: 60,
+      sku: 'SR-MESH-BLK',
+      availability: 'in_stock',
+      images: [{ id: '1', url: '/hero2.webp', alt: 'Running Shoes' }],
+      rating: 4.5,
+      reviewCount: 318,
+      category: 'Footwear',
+      brand: 'SportMax',
       shipping: { freeShipping: true, estimatedDays: '2-3 days' },
       createdAt: '2026-01-25',
-      updatedAt: '2026-02-14'
+      updatedAt: '2026-02-14',
     },
-    {
-      id: '5',
-      slug: 'bluetooth-speaker-portable',
-      name: 'Portable Bluetooth Speaker',
-      description: 'Waterproof portable speaker',
-      price: 89.99,
-      currency: '$',
-      stock: 200,
-      sku: 'BS-PORT-BLU',
-      availability: 'in_stock',
-      images: [{ id: '1', url: '/images/products/speaker-1.jpg', alt: 'Bluetooth Speaker' }],
-      rating: 4.6,
-      reviewCount: 412,
-      category: 'Electronics',
-      brand: 'AudioTech',
-      shipping: { freeShipping: true, estimatedDays: '2-4 days' },
-      createdAt: '2026-02-01',
-      updatedAt: '2026-02-15',
-      newArrival: true
-    }
   ];
 }
 
@@ -219,7 +216,7 @@ export async function generateMetadata({
   const product = await getProduct(params.slug);
   
   return {
-    title: product.metaTitle || `${product.name} | E-Commerce Store`,
+      title: product.metaTitle || `${product.name} | Store`,
     description: product.metaDescription || product.shortDescription,
     keywords: product.keywords?.join(', '),
     openGraph: {
@@ -272,7 +269,7 @@ export default async function ProductPage({
     offers: {
       '@type': 'Offer',
       url: `https://yourstore.com/product/${product.slug}`,
-      priceCurrency: 'USD',
+      priceCurrency: 'IDR',
       price: product.price,
       priceValidUntil: '2026-12-31',
       itemCondition: 'https://schema.org/NewCondition',
@@ -305,9 +302,8 @@ export default async function ProductPage({
           <Breadcrumb
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Shop', href: '/shop' },
-              { label: product.category, href: `/category/${product.category.toLowerCase()}` },
-              { label: product.name }
+              { label: 'Product', href: '/all-products' },
+              { label: product.name },
             ]}
           />
 

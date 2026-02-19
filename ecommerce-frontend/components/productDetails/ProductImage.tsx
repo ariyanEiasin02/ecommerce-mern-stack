@@ -53,7 +53,7 @@ const ProductImage: React.FC<ProductImageGalleryProps> = ({
                 >
                   <div className="product-image-gallery__thumbnail-inner">
                     <Image
-                      src={image.url}
+                      src={image.url || '/hero2.webp'}
                       alt={image.alt || `${productName} view ${index + 1}`}
                       width={100}
                       height={100}
@@ -82,7 +82,7 @@ const ProductImage: React.FC<ProductImageGalleryProps> = ({
             {/* Main Product Image */}
             <div className="product-image-gallery__main-wrapper">
               <Image
-                src={images[selectedImage]?.url || '/placeholder.jpg'}
+                src={images[selectedImage]?.url || '/hero2.webp'}
                 alt={images[selectedImage]?.alt || productName}
                 width={700}
                 height={700}
