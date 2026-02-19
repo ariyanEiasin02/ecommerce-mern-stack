@@ -106,7 +106,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, productName }) 
               onSwiper={(s) => { mainSwiperRef.current = s; }}
               thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
               modules={[Thumbs, Navigation, FreeMode]}
-              navigation={images.length > 1}
+              navigation={false}
               spaceBetween={0}
               slidesPerView={1}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}

@@ -12,7 +12,6 @@
 
 .product-page {
   padding: 2rem 0;
-  background-color: $white;
 
   @media (max-width: 768px) {
     padding: 1rem 0;
@@ -1100,12 +1099,5 @@
   &__divider {
     border-color: $gray-100;
     margin: 18px 0;
-  }
-}
-
-// Padding for mobile sticky bar
-@media (max-width: 991px) {
-  .product-page {
-    padding-bottom: 80px;
   }
 }
