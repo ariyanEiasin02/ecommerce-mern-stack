@@ -301,7 +301,6 @@ export default async function ProductPage({
           {/* Breadcrumb Navigation */}
           <Breadcrumb
             items={[
-              { label: 'Home', href: '/' },
               { label: 'Product', href: '/all-products' },
               { label: product.name },
             ]}
