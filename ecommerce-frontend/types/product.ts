@@ -43,6 +43,16 @@ export interface ProductShipping {
   cost?: number;
 }
 
+export interface ProductSeller {
+  id: string;
+  name: string;
+  verified?: boolean;
+  rating?: number;   // percentage e.g. 96
+  location?: string;
+  chatReply?: number; // percentage e.g. 98
+  avatarUrl?: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -98,6 +108,8 @@ export interface Product {
   bestseller?: boolean;
   newArrival?: boolean;
   relatedProducts?: string[];
+  soldCount?: number;
+  seller?: ProductSeller;
 }
 
 export interface CartItem {
