@@ -83,16 +83,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Action Buttons */}
         <div className="product-actions">
           <button className="action-btn wishlist-btn" aria-label="Wishlist">
-            ❤
+            <i className="fi fi-rr-bookmark"></i>
           </button>
-          <button className="action-btn quickview-btn" aria-label="Quick view">
+          {/* <button className="action-btn quickview-btn" aria-label="Quick view">
             ⤢
           </button>
           <button className="action-btn compare-btn" aria-label="Compare">
             ⇄
-          </button>
+          </button> */}
           <button className="action-btn addtocart-btn" aria-label="Add to cart">
-            🛒
+            <i className="fi fi-rr-shopping-cart-add"></i>
           </button>
         </div>
       </div>

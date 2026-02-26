@@ -852,7 +852,7 @@ a{
     .product-name {
       font-size: 16px;
       font-weight: $font-weight-medium;
-      color: #777;
+      color: rgba($black, 0.7);
       margin-bottom: 8px;
       line-height: 1.4;
       overflow: hidden;
@@ -872,12 +872,12 @@ a{
       .current-price {
         font-size: 18px;
         font-weight: $font-weight-bold;
-        color: #f06;
+        color:rgba($black, 0.8);
       }
 
       .original-price {
         font-size: 14px;
-        color: #999;
+        color: rgba($black, 0.5);
         text-decoration: line-through;
       }
     }
