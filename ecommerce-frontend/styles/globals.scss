@@ -1639,3 +1639,338 @@ a{
 // Import Product Details Styles
 // ===========================
 @import './productDetails';
+
+// ===========================
+// Mega Menu Bar
+// ===========================
+
+.mega-menu-bar {
+  background-color: #0f2032;
+  position: sticky;
+  top: $navbar-height;
+  z-index: $z-navbar - 1;
+  user-select: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+// ===========================
+// Mega Menu Nav (horizontal list)
+// ===========================
+
+.mega-menu-nav {
+  .container {
+    padding: 0 $spacing-md;
+  }
+}
+
+.mega-menu-list {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.mega-menu-item {
+  flex-shrink: 0;
+  position: relative;
+
+  &.active > .mega-menu-link,
+  &:hover > .mega-menu-link {
+    color: $primary-color;
+    background-color: rgba($white, 0.06);
+
+    .mega-menu-arrow {
+      transform: rotate(180deg);
+      color: $primary-color;
+    }
+  }
+}
+
+.mega-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  color: rgba($white, 0.9);
+  font-size: 0.82rem;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+
+  .mega-menu-icon {
+    font-size: 0.88rem;
+    opacity: 0.85;
+  }
+
+  .mega-menu-label {
+    flex: 1;
+  }
+
+  .mega-menu-arrow {
+    font-size: 0.6rem;
+    opacity: 0.7;
+    transition: transform 0.25s ease, color 0.2s ease;
+    margin-left: 2px;
+  }
+}
+
+// ===========================
+// Mega Dropdown Panel
+// ===========================
+
+.mega-dropdown {
+  background: $white;
+  border-top: 2px solid $primary-color;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0,0,0,0.08);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .container {
+    padding: $spacing-xl $spacing-md;
+  }
+}
+
+.mega-dropdown-inner {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: $spacing-xl;
+  align-items: flex-start;
+}
+
+// ===========================
+// Mega Brands (left section)
+// ===========================
+
+.mega-brands {
+  min-width: 0;
+}
+
+.mega-brands-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $gray-200;
+
+  .mega-cat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: $primary-color;
+    color: $white;
+    border-radius: $radius-md;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .mega-cat-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $gray-800;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+}
+
+.mega-brands-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 $spacing-xl;
+}
+
+.mega-brand-col {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    border-bottom: 1px solid $gray-100;
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.mega-brand-link {
+  display: block;
+  padding: 7px 4px;
+  font-size: 0.845rem;
+  color: $gray-700;
+  text-decoration: none;
+  transition: color 0.15s ease, padding-left 0.15s ease;
+  font-weight: $font-weight-normal;
+
+  &:hover {
+    color: $primary-color;
+    padding-left: 8px;
+  }
+
+  &.mega-show-all {
+    color: $primary-color;
+    font-weight: $font-weight-semibold;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: $spacing-xs;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ===========================
+// Mega Promo (right section)
+// ===========================
+
+.mega-promo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.mega-promo-card {
+  display: block;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-2px);
+
+    .mega-promo-img {
+      transform: scale(1.04);
+    }
+
+    .mega-promo-cta {
+      letter-spacing: 0.06em;
+    }
+  }
+}
+
+.mega-promo-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 185px;
+  overflow: hidden;
+  background: #0f2032;
+}
+
+.mega-promo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.mega-promo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $spacing-md $spacing-md;
+  background: linear-gradient(to top, rgba(8, 22, 33, 0.92) 0%, rgba(8, 22, 33, 0.55) 60%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mega-promo-badge {
+  display: inline-block;
+  background: $primary-color;
+  color: $white;
+  font-size: 0.65rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+  width: fit-content;
+}
+
+.mega-promo-label {
+  font-size: 0.82rem;
+  color: $white;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.mega-promo-cta {
+  font-size: 0.75rem;
+  color: rgba($white, 0.75);
+  font-weight: $font-weight-medium;
+  transition: letter-spacing 0.2s ease;
+}
+
+// ===========================
+// Quick Links (inside promo)
+// ===========================
+
+.mega-quick-links {
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.mega-quick-title {
+  font-size: 0.72rem;
+  font-weight: $font-weight-bold;
+  color: $gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: $spacing-sm;
+}
+
+.mega-quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xs $spacing-sm;
+}
+
+.mega-quick-link {
+  font-size: 0.8rem;
+  color: $gray-700;
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: $radius-sm;
+  border: 1px solid $gray-200;
+  background: $white;
+  text-align: center;
+  font-weight: $font-weight-medium;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $primary-color;
+    color: $white;
+    border-color: $primary-color;
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+}
