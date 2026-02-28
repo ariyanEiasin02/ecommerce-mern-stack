@@ -1,0 +1,398 @@
+Product Requirements Document (PRD)
+Project Name: Modern MERN E-commerce Platform
+1. 📌 Product Overview
+
+This project aims to build a modern, scalable, production-ready E-commerce web application using the MERN stack with Next.js (App Router) and TypeScript.
+
+The platform will provide:
+
+High-performance storefront
+
+Secure authentication system
+
+Dynamic product & category management
+
+Real-time cart and order system
+
+Role-based Admin Panel
+
+Fully responsive and SEO-optimized UI
+
+The goal is to achieve SaaS-level architecture quality with reusable components and clean code standards.
+
+2. 🛠 Technology Stack
+Frontend
+
+Next.js (App Router)
+
+TypeScript
+
+Bootstrap 5
+
+Axios
+
+React Hook Form
+
+JWT Auth integration
+
+Backend
+
+Node.js
+
+Express.js
+
+MongoDB
+
+Mongoose
+
+JWT Authentication
+
+Role-based middleware
+
+WebSocket or polling for real-time updates
+
+3. 🎨 Frontend Requirements
+3.1 UI Enhancements
+Home Page
+
+Improve spacing, typography, and grid alignment
+
+Add promotional banner section
+
+Featured products slider
+
+Category showcase section
+
+Fully responsive layout
+
+Product Details Page
+
+Image gallery with zoom functionality
+
+Product variant selection
+
+Ratings and reviews section
+
+Structured information layout
+
+Related products section
+
+All Products Page
+
+Clean product grid
+
+Sorting (price, popularity, newest)
+
+Pagination or infinite scroll
+
+Category Sidebar
+
+Price range filter
+
+Checkbox filters (brand, rating)
+
+Active filter highlight
+
+Clear filter button
+
+Mega Menu
+
+Multi-column dropdown
+
+Category images/icons
+
+Mobile-friendly collapse behavior
+
+3.2 Authentication Module
+Login Page
+
+Email & password validation
+
+Error handling
+
+Remember me option
+
+Sign Up Page
+
+Password strength indicator
+
+Confirm password validation
+
+Email uniqueness check
+
+Security:
+
+JWT-based authentication
+
+Secure token storage (HTTP-only cookies recommended)
+
+3.3 Profile System
+Dynamic Route
+/profile/[username]
+Features
+
+If owner → Show "Edit Profile"
+
+If other user → Show "Follow" button
+
+Show:
+
+Orders
+
+Wishlist
+
+Account information
+
+Fully dynamic with backend API integration.
+
+3.4 Navbar Functionalities
+
+Wishlist icon → Opens Bootstrap modal (dynamic content)
+
+Cart icon → Opens modal with cart items
+
+Real-time cart item counter
+
+Smooth animations
+
+Logout functionality
+
+3.5 Checkout System
+Multi-Step Flow
+
+Shipping Details
+
+Payment Method
+
+Order Review
+
+Features
+
+Coupon input
+
+Auto price calculation
+
+Tax & shipping calculation
+
+Order creation API integration
+
+Order confirmation page
+
+4. 🧱 Component Architecture
+
+Reusable components must be created for:
+
+Button.tsx
+
+Input.tsx
+
+Modal.tsx
+
+ProductCard.tsx
+
+Sidebar.tsx
+
+Navbar.tsx
+
+Table.tsx
+
+Standards:
+
+Strong TypeScript interfaces
+
+Reusable props
+
+Clean folder structure
+
+Reusable validation logic
+
+Centralized UI theme control
+
+5. 🗄 Backend Requirements
+5.1 Database Models (Mongoose)
+User
+
+name
+
+email
+
+password (hashed)
+
+role: user | superAdmin
+
+isBlocked
+
+wishlist
+
+createdAt
+
+Product
+
+title
+
+slug
+
+price
+
+discount
+
+stock
+
+images
+
+category
+
+ratings
+
+reviews
+
+Category
+
+name
+
+slug
+
+parentCategory (optional)
+
+Order
+
+user
+
+items
+
+shippingInfo
+
+paymentMethod
+
+totalPrice
+
+status
+
+Cart
+
+user
+
+items
+
+Wishlist
+
+user
+
+products
+
+Review
+
+user
+
+product
+
+rating
+
+comment
+
+6. 🔐 Authentication & Authorization
+
+JWT authentication
+
+Protected route middleware
+
+Role-based access control
+
+Super Admin only routes
+
+Error handling middleware
+
+Input validation (Joi or Zod optional)
+
+7. 🛠 Admin Panel
+Roles:
+
+User
+
+Super Admin
+
+Super Admin Capabilities
+Product Management
+
+Create / Edit / Delete products
+
+Upload images
+
+Manage stock
+
+Category Management
+
+Create nested categories
+
+Edit / Delete
+
+Order Management
+
+View all orders
+
+Update order status
+
+Filter by status
+
+User Management
+
+Block / Unblock
+
+Delete users
+
+Dashboard Analytics
+
+Total sales
+
+Total orders
+
+Total users
+
+Monthly revenue chart
+
+Real-time update via:
+
+WebSocket
+OR
+
+Polling mechanism
+
+8. ⚙️ Non-Functional Requirements
+
+Mobile-first responsive design
+
+SEO optimized (Next.js metadata)
+
+Clean MVC backend structure
+
+Professional error handling
+
+Toast notifications
+
+Skeleton loading states
+
+Environment-based config
+
+Production-ready structure
+
+Optimized performance
+
+Lazy loading images
+
+Code splitting
+
+9. 📂 Suggested Folder Structure
+Frontend
+/app
+/components
+/hooks
+/services
+/types
+/utils
+Backend
+/controllers
+/models
+/routes
+/middleware
+/config
+/utils
