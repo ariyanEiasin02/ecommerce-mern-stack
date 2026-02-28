@@ -1,0 +1,210 @@
+import { z } from 'zod';
+
+// Auth Validators
+export const registerSchema = z.object({
+  body: z.object({
+    name: z
+      .string({ required_error: 'Name is required' })
+      .min(2, 'Name must be at least 2 characters')
+      .max(50, 'Name cannot exceed 50 characters'),
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Please provide a valid email'),
+    password: z
+      .string({ required_error: 'Password is required' })
+      .min(6, 'Password must be at least 6 characters')
+      .max(128, 'Password cannot exceed 128 characters'),
+  }),
+});
+
+export const loginSchema = z.object({
+  body: z.object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Please provide a valid email'),
+    password: z.string({ required_error: 'Password is required' }),
+  }),
+});
+
+// Category Validators
+export const createCategorySchema = z.object({
+  body: z.object({
+    name: z
+      .string({ required_error: 'Category name is required' })
+      .min(2, 'Name must be at least 2 characters')
+      .max(100, 'Name cannot exceed 100 characters'),
+    slug: z.string().optional(),
+    description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
+    image: z.string().optional(),
+    parentCategory: z.string().optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+export const updateCategorySchema = z.object({
+  body: z.object({
+    name: z.string().min(2).max(100).optional(),
+    slug: z.string().optional(),
+    description: z.string().max(500).optional(),
+    image: z.string().optional(),
+    parentCategory: z.string().nullable().optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+// Product Validators
+export const createProductSchema = z.object({
+  body: z.object({
+    title: z
+      .string({ required_error: 'Product title is required' })
+      .min(2, 'Title must be at least 2 characters')
+      .max(200, 'Title cannot exceed 200 characters'),
+    slug: z.string().optional(),
+    description: z
+      .string({ required_error: 'Description is required' })
+      .max(5000, 'Description cannot exceed 5000 characters'),
+    price: z.coerce
+      .number({ required_error: 'Price is required' })
+      .min(0, 'Price cannot be negative'),
+    discount: z.coerce.number().min(0).max(100).optional(),
+    stock: z.coerce.number().min(0).optional(),
+    category: z.string({ required_error: 'Category is required' }),
+    brand: z.string().optional(),
+    variants: z
+      .array(
+        z.object({
+          type: z.string(),
+          value: z.string(),
+          label: z.string(),
+          stock: z.number().min(0).optional(),
+          priceModifier: z.number().optional(),
+        })
+      )
+      .optional(),
+    specifications: z
+      .array(z.object({ key: z.string(), value: z.string() }))
+      .optional(),
+    shipping: z
+      .object({
+        weight: z.number().optional(),
+        dimensions: z.string().optional(),
+        freeShipping: z.boolean().optional(),
+        estimatedDays: z.number().optional(),
+      })
+      .optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const updateProductSchema = z.object({
+  body: z.object({
+    title: z.string().min(2).max(200).optional(),
+    slug: z.string().optional(),
+    description: z.string().max(5000).optional(),
+    price: z.coerce.number().min(0).optional(),
+    discount: z.coerce.number().min(0).max(100).optional(),
+    stock: z.coerce.number().min(0).optional(),
+    category: z.string().optional(),
+    brand: z.string().optional(),
+    isActive: z.boolean().optional(),
+    variants: z
+      .array(
+        z.object({
+          type: z.string(),
+          value: z.string(),
+          label: z.string(),
+          stock: z.number().min(0).optional(),
+          priceModifier: z.number().optional(),
+        })
+      )
+      .optional(),
+    specifications: z
+      .array(z.object({ key: z.string(), value: z.string() }))
+      .optional(),
+    shipping: z
+      .object({
+        weight: z.number().optional(),
+        dimensions: z.string().optional(),
+        freeShipping: z.boolean().optional(),
+        estimatedDays: z.number().optional(),
+      })
+      .optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+// Review Validators
+export const createReviewSchema = z.object({
+  body: z.object({
+    rating: z.coerce
+      .number({ required_error: 'Rating is required' })
+      .min(1, 'Rating must be at least 1')
+      .max(5, 'Rating cannot exceed 5'),
+    comment: z
+      .string({ required_error: 'Comment is required' })
+      .min(1, 'Comment cannot be empty')
+      .max(1000, 'Comment cannot exceed 1000 characters'),
+  }),
+});
+
+// Order Validators
+export const createOrderSchema = z.object({
+  body: z.object({
+    shippingInfo: z.object({
+      fullName: z.string({ required_error: 'Full name is required' }),
+      address: z.string({ required_error: 'Address is required' }),
+      city: z.string({ required_error: 'City is required' }),
+      state: z.string({ required_error: 'State is required' }),
+      zipCode: z.string({ required_error: 'Zip code is required' }),
+      country: z.string({ required_error: 'Country is required' }),
+      phone: z.string({ required_error: 'Phone is required' }),
+    }),
+    paymentMethod: z.enum(['stripe', 'cod'], {
+      required_error: 'Payment method is required',
+    }),
+    couponCode: z.string().optional(),
+  }),
+});
+
+// Coupon Validators
+export const createCouponSchema = z.object({
+  body: z.object({
+    code: z
+      .string({ required_error: 'Coupon code is required' })
+      .min(3, 'Code must be at least 3 characters')
+      .max(20, 'Code cannot exceed 20 characters'),
+    discountType: z.enum(['percentage', 'fixed'], {
+      required_error: 'Discount type is required',
+    }),
+    discountValue: z.coerce
+      .number({ required_error: 'Discount value is required' })
+      .min(0, 'Discount value cannot be negative'),
+    minPurchase: z.coerce.number().min(0).optional(),
+    maxUses: z.coerce.number().min(0).optional(),
+    expiresAt: z.string({ required_error: 'Expiry date is required' }),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+// Cart Validators
+export const addToCartSchema = z.object({
+  body: z.object({
+    productId: z.string({ required_error: 'Product ID is required' }),
+    quantity: z.coerce.number().min(1, 'Quantity must be at least 1').optional(),
+    variant: z
+      .object({
+        type: z.string(),
+        value: z.string(),
+        label: z.string(),
+      })
+      .optional(),
+  }),
+});
+
+export const updateCartItemSchema = z.object({
+  body: z.object({
+    quantity: z.coerce
+      .number({ required_error: 'Quantity is required' })
+      .min(1, 'Quantity must be at least 1'),
+  }),
+});
