@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 
 const API_URL: string =
-  process.env.API_URL || "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_URL,

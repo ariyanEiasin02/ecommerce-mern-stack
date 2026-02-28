@@ -62,12 +62,14 @@ export const authService = {
   },
 
   async updateProfile(data: Partial<User>) {
-    const res = await axiosInstance.put<{ success: boolean; data: User }>('/users/profile', data);
+    const userId = Cookies.get('user_id');
+    if (!userId) throw new Error('Not authenticated');
+    const res = await axiosInstance.put<{ success: boolean; data: User }>(`/users/${userId}`, data);
     return res.data.data;
   },
 
-  async changePassword(data: { currentPassword: string; newPassword: string }) {
-    const res = await axiosInstance.put('/users/profile', data);
+  async changePassword(currentPassword: string, newPassword: string) {
+    const res = await axiosInstance.put('/auth/change-password', { currentPassword, newPassword });
     return res.data;
   },
 };

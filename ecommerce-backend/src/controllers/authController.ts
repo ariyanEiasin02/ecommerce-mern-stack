@@ -94,6 +94,34 @@ export const logout = asyncHandler(
   }
 );
 
+// @desc    Change password
+// @route   PUT /api/auth/change-password
+// @access  Private
+export const changePassword = asyncHandler(
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return next(new AppError('Current password and new password are required', 400));
+    }
+
+    const user = await User.findById(req.user!._id).select('+password');
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return next(new AppError('Current password is incorrect', 400));
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password changed successfully' });
+  }
+);
+
 // @desc    Get current user
 // @route   GET /api/auth/me
 // @access  Private

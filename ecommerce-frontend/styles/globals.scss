@@ -1,5 +1,8 @@
 @use "sass:math";
 @use "./variables" as *;
+@use './productDetails';
+@use './auth';
+@use './cart';
 
 // ===========================
 // Mixins
@@ -1634,21 +1637,6 @@ a{
     user-select: none;
   }
 }
-
-// ===========================
-// Import Product Details Styles
-// ===========================
-@import './productDetails';
-
-// ===========================
-// Import Auth Styles
-// ===========================
-@import './auth';
-
-// ===========================
-// Import Cart Styles
-// ===========================
-@import './cart';
 
 // ===========================
 // Mega Menu Bar

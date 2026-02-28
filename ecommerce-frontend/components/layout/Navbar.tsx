@@ -104,14 +104,18 @@ const Navbar: React.FC = () => {
         {/* Mobile Search Bar */}
         {isSearchOpen && (
           <div className="mobile-search">
-            <input 
-              type="text" 
-              placeholder="Search for products..." 
-              className="mobile-search-input"
-            />
-            <button className="mobile-search-btn">
-              <FaSearch />
-            </button>
+            <form onSubmit={handleSearch} style={{ display: 'contents' }}>
+              <input 
+                type="text" 
+                placeholder="Search for products..." 
+                className="mobile-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="mobile-search-btn" type="submit">
+                <FaSearch />
+              </button>
+            </form>
           </div>
         )}
       </header>
@@ -123,7 +127,7 @@ const Navbar: React.FC = () => {
           <span>Home</span>
         </Link>
 
-        <Link href="/shop" className="bottom-nav-item">
+        <Link href="/all-products" className="bottom-nav-item">
           <FaStore />
           <span>Shop</span>
         </Link>

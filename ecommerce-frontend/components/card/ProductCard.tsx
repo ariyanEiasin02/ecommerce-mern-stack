@@ -2,7 +2,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import SoldBar from "./SoldBar";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProductCardProps {
   id?: string;
@@ -30,6 +34,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   rating,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [cartAdded, setCartAdded] = useState(false);
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const inWishlist = id ? isInWishlist(id) : false;
 
   const handleMouseEnter = () => {
     if (images.length > 1) {
@@ -41,6 +52,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleMouseLeave = () => {
     setCurrentImageIndex(0);
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    if (!isAuthenticated) { router.push('/login'); return; }
+    await addToCart(id, 1);
+    setCartAdded(true);
+    setTimeout(() => setCartAdded(false), 1800);
+  };
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    if (!isAuthenticated) { router.push('/login'); return; }
+    await toggleWishlist(id);
   };
 
   const productLink = slug ? `/product/${slug}` : '#';
@@ -92,17 +119,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Action Buttons */}
         <div className="product-actions">
-          <button className="action-btn wishlist-btn" aria-label="Wishlist">
-            <i className="fi fi-rr-bookmark"></i>
+          <button
+            className={`action-btn wishlist-btn${inWishlist ? ' active' : ''}`}
+            aria-label="Wishlist"
+            onClick={handleWishlist}
+          >
+            <i className={inWishlist ? 'fi fi-ss-bookmark' : 'fi fi-rr-bookmark'}></i>
           </button>
-          {/* <button className="action-btn quickview-btn" aria-label="Quick view">
-            ⤢
-          </button>
-          <button className="action-btn compare-btn" aria-label="Compare">
-            ⇄
-          </button> */}
-          <button className="action-btn addtocart-btn" aria-label="Add to cart">
-            <i className="fi fi-rr-shopping-cart-add"></i>
+          <button
+            className="action-btn addtocart-btn"
+            aria-label="Add to cart"
+            onClick={handleAddToCart}
+          >
+            <i className={cartAdded ? 'fi fi-rr-check' : 'fi fi-rr-shopping-cart-add'}></i>
           </button>
         </div>
       </div>

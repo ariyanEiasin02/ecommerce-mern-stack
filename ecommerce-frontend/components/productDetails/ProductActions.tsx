@@ -85,6 +85,26 @@ const ProductActions: React.FC<ProductActionsProps> = ({
         )}
       </div>
 
+      {/* ── Desktop CTA buttons ── */}
+      <div className="product-actions__desktop d-none d-lg-flex gap-3 mt-3">
+        <button
+          type="button"
+          className="product-actions__btn-cart btn btn-primary flex-grow-1"
+          disabled={isOutOfStock}
+          onClick={handleAddToCart}
+        >
+          {cartFeedback ? '✓ Added to Bag' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+        <button
+          type="button"
+          className="product-actions__btn-buynow btn btn-outline-primary"
+          disabled={isOutOfStock}
+          onClick={handleBuyNow}
+        >
+          Buy Now
+        </button>
+      </div>
+
       {/* ── Sticky mobile CTA ── */}
       <div className="product-actions__sticky d-flex d-lg-none" role="complementary" aria-label="Quick purchase actions">
         <button
