@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { adminProductService, adminCategoryService } from "@/services/adminService";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+
+const QuillEditor = dynamic(() => import("@/components/common/QuillEditor"), { ssr: false });
 
 const AddProduct = () => {
   const router = useRouter();
@@ -63,7 +66,8 @@ const AddProduct = () => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.description.trim()) newErrors.description = "Description is required";
+    const descText = formData.description.replace(/<[^>]*>/g, "").trim();
+    if (!descText) newErrors.description = "Description is required";
     if (!formData.price || Number(formData.price) <= 0) newErrors.price = "Valid price is required";
     if (!formData.category) newErrors.category = "Category is required";
     if (Object.keys(newErrors).length > 0) {
@@ -97,6 +101,7 @@ const AddProduct = () => {
       images.forEach((file) => fd.append("images", file));
 
       await adminProductService.create(fd);
+      toast.success("Product created successfully!");
       router.push("/products/all");
     } catch (err: any) {
       setApiError(err?.response?.data?.message || "Failed to create product");
@@ -188,14 +193,15 @@ const AddProduct = () => {
                 <div className="col-12">
                   <div className="form-group">
                     <label className="form-label">Description *</label>
-                    <textarea
-                      className={`form-input ${errors.description ? "error" : ""}`}
-                      name="description"
+                    <QuillEditor
                       value={formData.description}
-                      onChange={handleChange}
-                      placeholder="Enter product description"
-                      rows={4}
-                      style={{ resize: "vertical" }}
+                      onChange={(val) => {
+                        setFormData((prev) => ({ ...prev, description: val }));
+                        if (errors.description) setErrors((prev) => ({ ...prev, description: "" }));
+                      }}
+                      placeholder="Enter product description..."
+                      minHeight={220}
+                      hasError={!!errors.description}
                     />
                     {errors.description && (
                       <span className="error-message">{errors.description}</span>

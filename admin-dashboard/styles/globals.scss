@@ -954,3 +954,113 @@ button {
     color: #64748b;
   }
 }
+
+// ─────────────────────────────────────────
+// Rich Text Editor (react-quill-new)
+// ─────────────────────────────────────────
+.quill-editor-wrapper {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #ffffff;
+
+  &:focus-within {
+    border-color: $ph-primary;
+    box-shadow: 0 0 0 3px rgba($ph-primary, 0.1);
+  }
+
+  &.quill-error {
+    border-color: #ef4444;
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  .ql-toolbar {
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    padding: 8px 12px;
+    font-family: "Inter", sans-serif;
+
+    .ql-formats {
+      margin-right: 8px;
+    }
+
+    button {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      transition: background-color 0.15s;
+
+      &:hover,
+      &.ql-active {
+        background: #e0e7ff;
+        color: $ph-primary;
+
+        .ql-stroke {
+          stroke: $ph-primary;
+        }
+
+        .ql-fill {
+          fill: $ph-primary;
+        }
+      }
+    }
+
+    .ql-picker-label {
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  }
+
+  .ql-container {
+    border: none;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    color: #0f172a;
+
+    .ql-editor {
+      min-height: var(--quill-min-height, 200px);
+      padding: 14px 16px;
+      line-height: 1.7;
+
+      &.ql-blank::before {
+        color: #94a3b8;
+        font-style: normal;
+        left: 16px;
+        font-size: 14px;
+      }
+
+      p {
+        margin-bottom: 0.5em;
+      }
+
+      h1, h2, h3 {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.5em;
+      }
+
+      ul, ol {
+        padding-left: 1.5em;
+      }
+
+      blockquote {
+        border-left: 3px solid $ph-primary;
+        padding-left: 12px;
+        color: #64748b;
+        margin: 8px 0;
+      }
+
+      code {
+        background: #f1f5f9;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 12px;
+      }
+    }
+  }
+}

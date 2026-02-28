@@ -81,7 +81,10 @@ export const getCategory = asyncHandler(
 // @access  Private/SuperAdmin
 export const createCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, image, parentCategory, isActive } = req.body;
+    const { name, description, parentCategory, isActive } = req.body;
+
+    // Handle uploaded image file
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : (req.body.image || '');
 
     const slug = slugify(name, { lower: true, strict: true });
 
@@ -103,7 +106,7 @@ export const createCategory = asyncHandler(
       name,
       slug,
       description,
-      image,
+      image: imageUrl,
       parentCategory: parentCategory || null,
       isActive: isActive !== undefined ? isActive : true,
     });
@@ -123,6 +126,11 @@ export const updateCategory = asyncHandler(
     let category = await Category.findById(req.params.id);
     if (!category) {
       return next(new AppError('Category not found', 404));
+    }
+
+    // Handle uploaded image file
+    if (req.file) {
+      req.body.image = `/uploads/${req.file.filename}`;
     }
 
     // If name changed, regenerate slug

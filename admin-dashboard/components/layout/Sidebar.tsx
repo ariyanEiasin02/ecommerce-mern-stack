@@ -80,6 +80,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <li className={pathname === "/category/all" ? "active" : ""}>
               <Link href="/category/all">All Categories</Link>
             </li>
+            <li className={pathname === "/category/sub" ? "active" : ""}>
+              <Link href="/category/sub">Sub Categories</Link>
+            </li>
             <li className={pathname === "/category/add" ? "active" : ""}>
               <Link href="/category/add">Add Category</Link>
             </li>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { adminDashboardService } from "@/services/adminService";
+import { adminDashboardService, getAssetUrl } from "@/services/adminService";
 
 interface DashboardData {
   totalUsers: number;
@@ -243,7 +243,7 @@ export default function Home() {
                           <div className="d-flex align-items-center gap-2">
                             {p.images?.[0] ? (
                               <img
-                                src={`http://localhost:5000${p.images[0].url || p.images[0]}`}
+                                src={getAssetUrl(p.images[0].url || p.images[0])}
                                 alt={p.title}
                                 style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 6 }}
                               />

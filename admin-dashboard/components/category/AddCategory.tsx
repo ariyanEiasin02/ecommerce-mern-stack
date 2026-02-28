@@ -3,6 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { adminCategoryService } from "@/services/adminService";
+import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+
+const QuillEditor = dynamic(() => import("@/components/common/QuillEditor"), { ssr: false });
 
 const AddCategory = () => {
   const router = useRouter();
@@ -60,6 +64,7 @@ const AddCategory = () => {
       if (image) fd.append("image", image);
 
       await adminCategoryService.create(fd);
+      toast.success("Category created successfully!");
       router.push("/category/all");
     } catch (err: any) {
       setApiError(err?.response?.data?.message || "Failed to create category");
@@ -197,15 +202,11 @@ const AddCategory = () => {
               {/* Description */}
               <div className="form-group">
                 <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  className="form-control"
-                  rows={5}
-                  placeholder="Enter category description"
+                <QuillEditor
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(val) => setFormData({ ...formData, description: val })}
+                  placeholder="Enter category description..."
+                  minHeight={180}
                 />
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { adminCategoryService, getAssetUrl } from "@/services/adminService";
 import { toast } from "react-toastify";
 
@@ -15,27 +16,27 @@ interface Category {
   createdAt: string;
 }
 
-const CategoryList = () => {
+const SubCategoryPage = () => {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  const fetchCategories = async () => {
+  const fetchSubCategories = async () => {
     try {
       setLoading(true);
       const data = await adminCategoryService.getAll();
-      setCategories(data);
+      setSubCategories(data.filter((c: Category) => c.parentCategory));
     } catch {
-      setError("Failed to load categories");
+      toast.error("Failed to load sub-categories");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchSubCategories();
   }, []);
 
   const handleDelete = async (id: string, name: string) => {
@@ -43,40 +44,35 @@ const CategoryList = () => {
     setDeletingId(id);
     try {
       await adminCategoryService.delete(id);
-      setCategories((prev) => prev.filter((c) => c._id !== id));
+      setSubCategories((prev) => prev.filter((c) => c._id !== id));
       toast.success(`"${name}" deleted successfully`);
-    } catch {
-      toast.error("Failed to delete category");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to delete sub-category");
     } finally {
       setDeletingId(null);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const filtered = subCategories.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.parentCategory as any)?.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
   if (loading) {
     return (
       <div className="category-page">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 300 }}>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: 300 }}
+        >
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="category-page">
-        <div className="alert alert-danger m-4">{error}</div>
       </div>
     );
   }
@@ -88,14 +84,16 @@ const CategoryList = () => {
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
-              <a href="/" className="breadcrumb-item">
+              <Link href="/" className="breadcrumb-item">
                 <i className="fi fi-rr-home"></i>
                 <span>Dashboard</span>
-              </a>
+              </Link>
               <span className="breadcrumb-separator">/</span>
-              <span className="breadcrumb-item">Category</span>
+              <Link href="/category/all" className="breadcrumb-item">
+                Category
+              </Link>
               <span className="breadcrumb-separator">/</span>
-              <span className="breadcrumb-item active">List</span>
+              <span className="breadcrumb-item active">Sub Categories</span>
             </nav>
           </div>
           <button
@@ -103,19 +101,28 @@ const CategoryList = () => {
             onClick={() => router.push("/category/add")}
           >
             <i className="fi fi-rr-plus"></i>
-            <span>Create Category</span>
+            <span>Add Sub Category</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
+            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }}></i>
+          </div>
+          <div className="stat-info">
+            <h3>{subCategories.length}</h3>
+            <p>Total Sub Categories</p>
+          </div>
+        </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
             <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }}></i>
           </div>
           <div className="stat-info">
-            <h3>{categories.filter((c) => c.isActive).length}</h3>
+            <h3>{subCategories.filter((c) => c.isActive).length}</h3>
             <p>Active</p>
           </div>
         </div>
@@ -124,7 +131,7 @@ const CategoryList = () => {
             <i className="fi fi-rr-cross-circle" style={{ color: "#ef4444" }}></i>
           </div>
           <div className="stat-info">
-            <h3>{categories.filter((c) => !c.isActive).length}</h3>
+            <h3>{subCategories.filter((c) => !c.isActive).length}</h3>
             <p>Inactive</p>
           </div>
         </div>
@@ -133,25 +140,50 @@ const CategoryList = () => {
             <i className="fi fi-rr-folder" style={{ color: "#f59e0b" }}></i>
           </div>
           <div className="stat-info">
-            <h3>{categories.filter((c) => c.parentCategory).length}</h3>
-            <p>Sub-categories</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }}></i>
-          </div>
-          <div className="stat-info">
-            <h3>{categories.length}</h3>
-            <p>Total Categories</p>
+            <h3>
+              {[...new Set(subCategories.map((c) => (c.parentCategory as any)?._id))].length}
+            </h3>
+            <p>Parent Categories</p>
           </div>
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table */}
       <div className="table-container">
         <div className="table-header">
-          <h2>All Categories</h2>
+          <h2>All Sub Categories</h2>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <div style={{ position: "relative" }}>
+              <i
+                className="fi fi-rr-search"
+                style={{
+                  position: "absolute",
+                  left: 12,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#94a3b8",
+                  fontSize: 14,
+                }}
+              ></i>
+              <input
+                type="text"
+                placeholder="Search sub-categories..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  height: 38,
+                  paddingLeft: 36,
+                  paddingRight: 12,
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  outline: "none",
+                  background: "#f8fafc",
+                  minWidth: 220,
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="table-wrapper">
@@ -159,23 +191,23 @@ const CategoryList = () => {
             <thead>
               <tr>
                 <th>Image</th>
-                <th>Category Name</th>
+                <th>Sub Category</th>
                 <th>Slug</th>
-                <th>Parent</th>
-                <th>Active</th>
-                <th>Created Date</th>
+                <th>Parent Category</th>
+                <th>Status</th>
+                <th>Created</th>
                 <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {categories.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-4 text-muted">
-                    No categories found. Create your first category!
+                    {search ? "No results found" : "No sub-categories yet. Create one by selecting a parent category."}
                   </td>
                 </tr>
               ) : (
-                categories.map((cat) => (
+                filtered.map((cat) => (
                   <tr key={cat._id}>
                     <td>
                       {cat.image ? (
@@ -190,7 +222,7 @@ const CategoryList = () => {
                             width: 40,
                             height: 40,
                             borderRadius: 6,
-                            backgroundColor: "#f1f5f9",
+                            background: "#f1f5f9",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -209,8 +241,21 @@ const CategoryList = () => {
                       <span className="slug-text">{cat.slug}</span>
                     </td>
                     <td>
-                      <span className="description-text">
-                        {cat.parentCategory?.name || "—"}
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          padding: "4px 10px",
+                          background: "#e0e7ff",
+                          color: "#4338ca",
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        <i className="fi fi-rr-folder" style={{ fontSize: 11 }}></i>
+                        {(cat.parentCategory as any)?.name || "—"}
                       </span>
                     </td>
                     <td>
@@ -226,19 +271,16 @@ const CategoryList = () => {
                     <td>
                       <div className="action-buttons">
                         <button
-                          className="action-btn edit-btn"
-                          title="Edit"
-                          onClick={() => router.push(`/category/edit/${cat._id}`)}
-                        >
-                          <i className="fi fi-rr-pencil"></i>
-                        </button>
-                        <button
                           className="action-btn delete-btn"
                           title="Delete"
                           disabled={deletingId === cat._id}
                           onClick={() => handleDelete(cat._id, cat.name)}
                         >
-                          <i className={deletingId === cat._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"}></i>
+                          <i
+                            className={
+                              deletingId === cat._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"
+                            }
+                          ></i>
                         </button>
                       </div>
                     </td>
@@ -249,10 +291,10 @@ const CategoryList = () => {
           </table>
         </div>
 
-        {/* Footer */}
         <div className="table-footer">
           <div className="showing-info">
-            Showing <strong>{categories.length}</strong> categories
+            Showing <strong>{filtered.length}</strong> of{" "}
+            <strong>{subCategories.length}</strong> sub-categories
           </div>
         </div>
       </div>
@@ -260,4 +302,4 @@ const CategoryList = () => {
   );
 };
 
-export default CategoryList;
+export default SubCategoryPage;

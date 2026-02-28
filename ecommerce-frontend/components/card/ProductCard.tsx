@@ -15,7 +15,7 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   discount?: number;
-  images: string[];
+  images: (string | { url: string }|{ url: string; alt?: string; isPrimary?: boolean })[];
   isTrending?: boolean;
   soldCount?: number;
   rating?: number;
@@ -71,7 +71,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const productLink = slug ? `/product/${slug}` : '#';
-  const displayImages = images.length > 0 ? images : ['/hero1.webp'];
+  // Normalize images: backend returns objects { url, alt }, old data may be strings
+  const normalizedImages = images.map((img) =>
+    typeof img === 'string' ? img : img.url
+  );
+  const displayImages = normalizedImages.length > 0 ? normalizedImages : ['/hero1.webp'];
 
   return (
     <div
@@ -106,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Image Indicators */}
         {images.length > 1 && (
           <div className="image-indicators">
-            {images.map((_, index) => (
+            {normalizedImages.map((_, index) => (
               <span
                 key={index}
                 className={`indicator-dot ${

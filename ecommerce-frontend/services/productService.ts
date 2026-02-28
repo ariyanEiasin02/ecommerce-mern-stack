@@ -9,7 +9,7 @@ export interface ApiProduct {
   price: number;
   originalPrice?: number;
   discount?: number;
-  images: string[];
+  images: { url: string; alt: string; isPrimary?: boolean }[];
   category: { _id: string; name: string; slug: string } | string;
   brand?: string;
   stock: number;

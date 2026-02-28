@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+// Helper: parse JSON strings for fields that arrive as strings from FormData
+const parseJson = (val: unknown) => {
+  if (typeof val === 'string') {
+    try { return JSON.parse(val); } catch { return val; }
+  }
+  return val;
+};
+
+// Helper: coerce "true"/"false" strings to boolean (for FormData boolean fields)
+const coerceBool = (val: unknown) => {
+  if (val === 'true') return true;
+  if (val === 'false') return false;
+  return val;
+};
+
 // Auth Validators
 export const registerSchema = z.object({
   body: z.object({
@@ -34,10 +49,10 @@ export const createCategorySchema = z.object({
       .min(2, 'Name must be at least 2 characters')
       .max(100, 'Name cannot exceed 100 characters'),
     slug: z.string().optional(),
-    description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
+    description: z.string().max(5000, 'Description cannot exceed 5000 characters').optional(),
     image: z.string().optional(),
     parentCategory: z.string().optional(),
-    isActive: z.boolean().optional(),
+    isActive: z.preprocess(coerceBool, z.boolean().optional()),
   }),
 });
 
@@ -45,10 +60,10 @@ export const updateCategorySchema = z.object({
   body: z.object({
     name: z.string().min(2).max(100).optional(),
     slug: z.string().optional(),
-    description: z.string().max(500).optional(),
+    description: z.string().max(5000).optional(),
     image: z.string().optional(),
     parentCategory: z.string().nullable().optional(),
-    isActive: z.boolean().optional(),
+    isActive: z.preprocess(coerceBool, z.boolean().optional()),
   }),
 });
 
@@ -70,29 +85,36 @@ export const createProductSchema = z.object({
     stock: z.coerce.number().min(0).optional(),
     category: z.string({ message: 'Category is required' }),
     brand: z.string().optional(),
-    variants: z
-      .array(
-        z.object({
-          type: z.string(),
-          value: z.string(),
-          label: z.string(),
-          stock: z.number().min(0).optional(),
-          priceModifier: z.number().optional(),
+    variants: z.preprocess(
+      parseJson,
+      z
+        .array(
+          z.object({
+            type: z.string(),
+            value: z.string(),
+            label: z.string(),
+            stock: z.number().min(0).optional(),
+            priceModifier: z.number().optional(),
+          })
+        )
+        .optional()
+    ),
+    specifications: z.preprocess(
+      parseJson,
+      z.array(z.object({ key: z.string(), value: z.string() })).optional()
+    ),
+    shipping: z.preprocess(
+      parseJson,
+      z
+        .object({
+          weight: z.number().optional(),
+          dimensions: z.string().optional(),
+          freeShipping: z.preprocess(coerceBool, z.boolean().optional()),
+          estimatedDays: z.coerce.number().optional(),
         })
-      )
-      .optional(),
-    specifications: z
-      .array(z.object({ key: z.string(), value: z.string() }))
-      .optional(),
-    shipping: z
-      .object({
-        weight: z.number().optional(),
-        dimensions: z.string().optional(),
-        freeShipping: z.boolean().optional(),
-        estimatedDays: z.number().optional(),
-      })
-      .optional(),
-    tags: z.array(z.string()).optional(),
+        .optional()
+    ),
+    tags: z.preprocess(parseJson, z.array(z.string()).optional()),
   }),
 });
 
@@ -106,30 +128,37 @@ export const updateProductSchema = z.object({
     stock: z.coerce.number().min(0).optional(),
     category: z.string().optional(),
     brand: z.string().optional(),
-    isActive: z.boolean().optional(),
-    variants: z
-      .array(
-        z.object({
-          type: z.string(),
-          value: z.string(),
-          label: z.string(),
-          stock: z.number().min(0).optional(),
-          priceModifier: z.number().optional(),
+    isActive: z.preprocess(coerceBool, z.boolean().optional()),
+    variants: z.preprocess(
+      parseJson,
+      z
+        .array(
+          z.object({
+            type: z.string(),
+            value: z.string(),
+            label: z.string(),
+            stock: z.number().min(0).optional(),
+            priceModifier: z.number().optional(),
+          })
+        )
+        .optional()
+    ),
+    specifications: z.preprocess(
+      parseJson,
+      z.array(z.object({ key: z.string(), value: z.string() })).optional()
+    ),
+    shipping: z.preprocess(
+      parseJson,
+      z
+        .object({
+          weight: z.number().optional(),
+          dimensions: z.string().optional(),
+          freeShipping: z.preprocess(coerceBool, z.boolean().optional()),
+          estimatedDays: z.coerce.number().optional(),
         })
-      )
-      .optional(),
-    specifications: z
-      .array(z.object({ key: z.string(), value: z.string() }))
-      .optional(),
-    shipping: z
-      .object({
-        weight: z.number().optional(),
-        dimensions: z.string().optional(),
-        freeShipping: z.boolean().optional(),
-        estimatedDays: z.number().optional(),
-      })
-      .optional(),
-    tags: z.array(z.string()).optional(),
+        .optional()
+    ),
+    tags: z.preprocess(parseJson, z.array(z.string()).optional()),
   }),
 });
 

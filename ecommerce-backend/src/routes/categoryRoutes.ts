@@ -10,6 +10,7 @@ import {
 import { protect, authorize } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { createCategorySchema, updateCategorySchema } from '../validators';
+import upload from '../middleware/upload';
 
 const router = Router();
 
@@ -21,8 +22,18 @@ router.get('/:slug', getCategory);
 router.use(protect as any);
 router.use(authorize('superAdmin') as any);
 router.get('/admin/all', getAllCategoriesAdmin);
-router.post('/', validate(createCategorySchema), createCategory);
-router.put('/:id', validate(updateCategorySchema), updateCategory);
+router.post(
+  '/',
+  upload.single('image'),
+  validate(createCategorySchema),
+  createCategory
+);
+router.put(
+  '/:id',
+  upload.single('image'),
+  validate(updateCategorySchema),
+  updateCategory
+);
 router.delete('/:id', deleteCategory);
 
 export default router;

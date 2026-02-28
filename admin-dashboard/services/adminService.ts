@@ -1,6 +1,18 @@
 import { adminAxios } from "@/config/axiosInstance";
 import Cookies from "js-cookie";
 
+// Helper to resolve backend base URL for images
+export const getAssetUrl = (path: string) => {
+  const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
+    .replace(/\/api$/, "");
+  return `${base}${path}`;
+};
+
+// Remove Content-Type for FormData so axios/browser sets multipart boundary correctly
+const formDataConfig = {
+  headers: { "Content-Type": undefined as unknown as string },
+};
+
 // ============ Auth ============
 export const adminAuthService = {
   async login(email: string, password: string) {
@@ -29,22 +41,25 @@ export const adminAuthService = {
 
 // ============ Categories ============
 export const adminCategoryService = {
+  // Admin route: includes inactive categories, sorted by createdAt desc
   async getAll() {
+    const res = await adminAxios.get("/categories/admin/all");
+    return res.data.data;
+  },
+
+  // Public route: only active categories (used for parent category dropdowns)
+  async getPublic() {
     const res = await adminAxios.get("/categories");
     return res.data.data;
   },
 
   async create(data: FormData) {
-    const res = await adminAxios.post("/categories", data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await adminAxios.post("/categories", data, formDataConfig);
     return res.data.data;
   },
 
   async update(id: string, data: FormData) {
-    const res = await adminAxios.put(`/categories/${id}`, data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await adminAxios.put(`/categories/${id}`, data, formDataConfig);
     return res.data.data;
   },
 
@@ -71,16 +86,12 @@ export const adminProductService = {
   },
 
   async create(data: FormData) {
-    const res = await adminAxios.post("/products", data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await adminAxios.post("/products", data, formDataConfig);
     return res.data.data;
   },
 
   async update(id: string, data: FormData) {
-    const res = await adminAxios.put(`/products/${id}`, data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await adminAxios.put(`/products/${id}`, data, formDataConfig);
     return res.data.data;
   },
 

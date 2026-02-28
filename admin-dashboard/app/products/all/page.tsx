@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { adminProductService } from "@/services/adminService";
+import { adminProductService, getAssetUrl } from "@/services/adminService";
 import { toast } from "react-toastify";
 
 interface Product {
@@ -181,7 +181,7 @@ const AllProducts = () => {
                       <td>
                         {p.images?.[0] ? (
                           <img
-                            src={`http://localhost:5000${p.images[0].url}`}
+                            src={getAssetUrl(p.images[0].url)}
                             alt={p.title}
                             style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
                           />

@@ -6,6 +6,7 @@ import Header from "./Header";
 import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "react-quill-new/dist/quill.snow.css";
 
 const AdminLayoutInner = ({
   children,
