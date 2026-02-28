@@ -5,7 +5,13 @@ import { AppError } from '../utils/AppError';
 import asyncHandler from '../utils/asyncHandler';
 import { AuthRequest } from '../types';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+let _stripe: Stripe | null = null;
+const getStripe = (): Stripe => {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+  }
+  return _stripe;
+};
 
 // @desc    Create Stripe checkout session
 // @route   POST /api/payments/create-checkout-session
@@ -69,7 +75,7 @@ export const createCheckoutSession = asyncHandler(
       });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
@@ -109,7 +115,7 @@ export const stripeWebhook = async (
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET as string
