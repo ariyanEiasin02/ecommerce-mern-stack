@@ -5,8 +5,9 @@ import Cookies from "js-cookie";
 export const adminAuthService = {
   async login(email: string, password: string) {
     const res = await adminAxios.post("/auth/login", { email, password });
-    const { token, user } = res.data.data;
-    if (user.role !== "superAdmin") {
+    // Backend sendTokenResponse spreads data at root: { success, token, user }
+    const { token, user } = res.data;
+    if (!user || user.role !== "superAdmin") {
       throw new Error("Not authorized as admin");
     }
     Cookies.set("admin_token", token, { expires: 7 });
@@ -16,7 +17,8 @@ export const adminAuthService = {
 
   async getMe() {
     const res = await adminAxios.get("/auth/me");
-    return res.data.data;
+    // Backend GET /auth/me returns { success, user }
+    return res.data.user;
   },
 
   logout() {

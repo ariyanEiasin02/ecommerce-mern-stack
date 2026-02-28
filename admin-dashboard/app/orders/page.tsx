@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { adminOrderService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 interface Order {
   _id: string;
@@ -74,8 +75,9 @@ const OrdersPage = () => {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
+      toast.success(`Order status updated to ${newStatus}`);
     } catch {
-      alert("Failed to update order status");
+      toast.error("Failed to update order status");
     } finally {
       setUpdatingId(null);
     }

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { adminCategoryService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 interface Category {
   _id: string;
@@ -43,8 +44,9 @@ const CategoryList = () => {
     try {
       await adminCategoryService.delete(id);
       setCategories((prev) => prev.filter((c) => c._id !== id));
+      toast.success(`"${name}" deleted successfully`);
     } catch {
-      alert("Failed to delete category");
+      toast.error("Failed to delete category");
     } finally {
       setDeletingId(null);
     }

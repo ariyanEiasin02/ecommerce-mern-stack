@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { adminProductService, adminCategoryService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 const AddProduct = () => {
   const router = useRouter();
@@ -46,7 +47,7 @@ const AddProduct = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length + images.length > 10) {
-      alert("Maximum 10 images allowed");
+      toast.error("Maximum 10 images allowed");
       return;
     }
     setImages((prev) => [...prev, ...files]);

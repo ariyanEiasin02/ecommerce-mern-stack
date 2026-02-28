@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminLayoutInner = ({
   children,
@@ -54,6 +56,15 @@ const AdminLayoutInner = ({
       {isSidebarOpen && (
         <div className="sidebar-overlay" onClick={toggleSidebar}></div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };

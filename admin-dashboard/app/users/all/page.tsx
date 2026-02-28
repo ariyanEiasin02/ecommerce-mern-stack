@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { adminUserService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 interface User {
   _id: string;
@@ -46,8 +47,9 @@ const UsersPage = () => {
       setUsers((prev) =>
         prev.map((u) => (u._id === id ? { ...u, isBlocked: res.user?.isBlocked ?? !u.isBlocked } : u))
       );
+      toast.success("User status updated");
     } catch {
-      alert("Failed to update user status");
+      toast.error("Failed to update user status");
     } finally {
       setTogglingId(null);
     }
@@ -60,8 +62,9 @@ const UsersPage = () => {
       await adminUserService.delete(id);
       setUsers((prev) => prev.filter((u) => u._id !== id));
       setTotal((prev) => prev - 1);
+      toast.success(`User "${name}" deleted`);
     } catch {
-      alert("Failed to delete user");
+      toast.error("Failed to delete user");
     } finally {
       setDeletingId(null);
     }

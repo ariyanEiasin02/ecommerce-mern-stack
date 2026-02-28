@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminProductService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 interface Product {
   _id: string;
@@ -64,8 +65,9 @@ const AllProducts = () => {
       await adminProductService.delete(id);
       setProducts((prev) => prev.filter((p) => p._id !== id));
       setTotal((prev) => prev - 1);
+      toast.success(`"${title}" deleted successfully`);
     } catch {
-      alert("Failed to delete product");
+      toast.error("Failed to delete product");
     } finally {
       setDeletingId(null);
     }

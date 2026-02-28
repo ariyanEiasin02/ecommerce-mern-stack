@@ -3,7 +3,7 @@ import React from "react";
 
 const CategoryList = dynamic(
   () => import("@/components/category/CategoryList"),
-  { ssr: false },
+  { ssr: true },
 );
 
 const Page = () => {

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { adminCouponService } from "@/services/adminService";
+import { toast } from "react-toastify";
 
 interface Coupon {
   _id: string;
@@ -78,6 +79,7 @@ const CouponsPage = () => {
       setCoupons((prev) => [newCoupon, ...prev]);
       setFormData(emptyForm);
       setShowForm(false);
+      toast.success("Coupon created successfully!");
     } catch (err: any) {
       setApiError(err?.response?.data?.message || "Failed to create coupon");
     } finally {
@@ -91,8 +93,9 @@ const CouponsPage = () => {
     try {
       await adminCouponService.delete(id);
       setCoupons((prev) => prev.filter((c) => c._id !== id));
+      toast.success(`Coupon "${code}" deleted`);
     } catch {
-      alert("Failed to delete coupon");
+      toast.error("Failed to delete coupon");
     } finally {
       setDeletingId(null);
     }
