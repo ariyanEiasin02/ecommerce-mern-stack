@@ -132,7 +132,7 @@ export const updateCategory = asyncHandler(
       // Check for duplicate slug
       const existing = await Category.findOne({
         slug: req.body.slug,
-        _id: { $ne: req.params.id },
+        _id: { $ne: req.params.id } as any,
       });
       if (existing) {
         return next(

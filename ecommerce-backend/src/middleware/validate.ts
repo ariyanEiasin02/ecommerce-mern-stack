@@ -12,11 +12,11 @@ export const validate = (schema: ZodSchema) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const messages = error.errors.map((e) => e.message).join('. ');
+        const messages = error.issues.map((e: { message: string }) => e.message).join('. ');
         _res.status(400).json({
           success: false,
           message: messages,
-          errors: error.errors,
+          errors: error.issues,
         });
         return;
       }

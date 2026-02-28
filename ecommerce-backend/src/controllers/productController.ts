@@ -261,7 +261,7 @@ export const updateProduct = asyncHandler(
 
       const existing = await Product.findOne({
         slug: req.body.slug,
-        _id: { $ne: req.params.id },
+        _id: { $ne: req.params.id } as any,
       });
       if (existing) {
         return next(

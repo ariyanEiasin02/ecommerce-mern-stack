@@ -2,9 +2,11 @@ import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 
 export const generateToken = (userId: string, role: string): string => {
-  return jwt.sign({ id: userId, role }, process.env.JWT_SECRET as string, {
-    expiresIn: process.env.JWT_EXPIRE || '7d',
-  });
+  return jwt.sign(
+    { id: userId, role },
+    process.env.JWT_SECRET as jwt.Secret,
+    { expiresIn: (process.env.JWT_EXPIRE || '7d') as string } as jwt.SignOptions
+  );
 };
 
 export const sendTokenResponse = (

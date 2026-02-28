@@ -1,16 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
 
-interface MongoError extends Error {
-  code?: number;
-  keyValue?: Record<string, unknown>;
-  errors?: Record<string, { message: string }>;
-  path?: string;
-  value?: unknown;
-}
-
 const errorHandler = (
-  err: MongoError | AppError,
+  err: any,
   _req: Request,
   res: Response,
   _next: NextFunction
@@ -27,21 +19,21 @@ const errorHandler = (
   // Mongoose Validation Error
   if (err.name === 'ValidationError' && err.errors) {
     statusCode = 400;
-    const messages = Object.values(err.errors).map((e) => e.message);
+    const messages = Object.values(err.errors).map((e: any) => e.message);
     message = messages.join('. ');
   }
 
   // Mongoose Duplicate Key Error
-  if ((err as MongoError).code === 11000) {
+  if (err.code === 11000) {
     statusCode = 400;
-    const field = Object.keys((err as MongoError).keyValue || {})[0];
+    const field = Object.keys(err.keyValue || {})[0];
     message = `Duplicate value for field: ${field}. Please use a different value.`;
   }
 
   // Mongoose Cast Error (invalid ObjectId)
   if (err.name === 'CastError') {
     statusCode = 400;
-    message = `Invalid ${(err as MongoError).path}: ${(err as MongoError).value}`;
+    message = `Invalid ${err.path}: ${err.value}`;
   }
 
   // JWT Errors
