@@ -7,7 +7,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import fs from 'fs';
@@ -43,7 +42,25 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Security middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-app.use(mongoSanitize());
+
+// Custom mongo-sanitize middleware compatible with Express 5 (req.query is read-only)
+// Strips keys starting with '$' or containing '.' from req.body and req.params
+function stripDollarKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(stripDollarKeys);
+  if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>)
+        .filter(([k]) => !k.startsWith('$') && !k.includes('.'))
+        .map(([k, v]) => [k, stripDollarKeys(v)])
+    );
+  }
+  return obj;
+}
+app.use((req, _res, next) => {
+  if (req.body) req.body = stripDollarKeys(req.body);
+  if (req.params) req.params = stripDollarKeys(req.params) as Record<string, string>;
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -120,7 +137,28 @@ const startServer = async () => {
       `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
     );
   });
+
+  httpServer.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Exiting.`);
+      process.exit(1);
+    } else {
+      throw err;
+    }
+  });
 };
+
+const shutdown = () => {
+  httpServer.close(() => {
+    console.log('Server closed gracefully');
+    process.exit(0);
+  });
+  // Force exit after 5s if connections linger
+  setTimeout(() => process.exit(0), 5000).unref();
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 startServer();
 
