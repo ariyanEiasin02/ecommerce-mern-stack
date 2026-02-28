@@ -4,7 +4,7 @@ import "@/styles/globals.scss";
 import Navbar from "@/components/layout/Navbar";
 import MegaMenu from "@/components/layout/MegaMenu";
 import Footer from "@/components/layout/Footer";
-
+import Providers from "@/components/Providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,10 +43,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable}`}>
-        <Navbar />
-        <MegaMenu />
-        {children}
-        <Footer />
+        <Providers>
+          <Navbar />
+          <MegaMenu />
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

@@ -11,8 +11,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     category: false,
     products: false,
     users: false,
-    content: false,
-    settings: false,
   });
 
   const toggleMenu = (menuKey: string) => {
@@ -90,9 +88,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 <li>
                   <Link href="/products/add">Add Product</Link>
                 </li>
-                <li>
-                  <Link href="/products/reviews">Reviews</Link>
-                </li>
               </ul>
             )}
           </div>
@@ -114,85 +109,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 <li>
                   <Link href="/users/all">All Users</Link>
                 </li>
-                <li>
-                  <Link href="/users/admins">Administrators</Link>
-                </li>
-                <li>
-                  <Link href="/users/permissions">Permissions</Link>
-                </li>
               </ul>
             )}
           </div>
 
-          {/* Analytics */}
+          {/* Orders */}
           <div className="nav-item">
-            <Link href="/analytics" className="nav-link">
-              <i className="fi fi-rr-chart-line-up"></i>
-              <span>Analytics</span>
+            <Link href="/orders" className="nav-link">
+              <i className="fi fi-rr-shopping-cart"></i>
+              <span>Orders</span>
             </Link>
           </div>
 
-          {/* Content */}
+          {/* Coupons */}
           <div className="nav-item">
-            <button
-              className={`nav-link ${openMenus.content ? "active" : ""}`}
-              onClick={() => toggleMenu("content")}
-            >
-              <i className="fi fi-rr-document"></i>
-              <span>Content</span>
-              <i
-                className={`arrow fi fi-rr-angle-small-${openMenus.content ? "up" : "down"}`}
-              ></i>
-            </button>
-            {openMenus.content && (
-              <ul className="sub-menu">
-                <li>
-                  <Link href="/content/pages">Pages</Link>
-                </li>
-                <li>
-                  <Link href="/content/blog">Blog Posts</Link>
-                </li>
-                <li>
-                  <Link href="/content/media">Media Library</Link>
-                </li>
-              </ul>
-            )}
-          </div>
-
-          <div className="menu-label">SYSTEM</div>
-
-          {/* Settings */}
-          <div className="nav-item">
-            <button
-              className={`nav-link ${openMenus.settings ? "active" : ""}`}
-              onClick={() => toggleMenu("settings")}
-            >
-              <i className="fi fi-rr-settings"></i>
-              <span>Settings</span>
-              <i
-                className={`arrow fi fi-rr-angle-small-${openMenus.settings ? "up" : "down"}`}
-              ></i>
-            </button>
-            {openMenus.settings && (
-              <ul className="sub-menu">
-                <li>
-                  <Link href="/settings/general">General</Link>
-                </li>
-                <li>
-                  <Link href="/settings/security">Security</Link>
-                </li>
-                <li>
-                  <Link href="/settings/integrations">Integrations</Link>
-                </li>
-              </ul>
-            )}
-          </div>
-
-          {/* Support */}
-          <div className="nav-item">
-            <Link href="/support" className="nav-link">
-              <i className="fi fi-rr-life-ring"></i>
-              <span>Support</span>
+            <Link href="/coupons" className="nav-link">
+              <i className="fi fi-rr-ticket"></i>
+              <span>Coupons</span>
             </Link>
           </div>
         </nav>

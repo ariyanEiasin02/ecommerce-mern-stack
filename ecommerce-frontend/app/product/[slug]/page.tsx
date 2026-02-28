@@ -1,256 +1,153 @@
-import React from 'react';
-import { Metadata } from 'next';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Breadcrumb from '@/components/common/Breadcrumb';
 import ProductBanner from '@/components/productDetails/ProductBanner';
 import ProductTabs from '@/components/productDetails/ProductTabs';
 import RelatedProducts from '@/components/productDetails/RelatedProducts';
 import { Product } from '@/types/product';
+import { productService, ApiProduct } from '@/services/productService';
+import { reviewService } from '@/services/reviewService';
 
-// Mock function to fetch product - replace with actual API call
-async function getProduct(slug: string): Promise<Product> {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`${process.env.API_URL}/products/${slug}`);
-  // return response.json();
+function mapApiToProduct(api: ApiProduct, reviews: any[] = []): Product {
+  const categoryName = typeof api.category === 'object' ? api.category.name : '';
+  const categorySlug = typeof api.category === 'object' ? api.category.slug : '';
 
-  // Mock data – Ben Hogan Golf Polo Shirt
+  // Map variants to sizes/colors
+  const sizeVariant = api.variants?.find((v) => v.name.toLowerCase() === 'size');
+  const colorVariant = api.variants?.find((v) => v.name.toLowerCase() === 'color');
+
   return {
-    id: '1',
-    slug: slug,
-    name: "This Ben Hogan Men's Solid Ottoman Golf Polo Shirt",
-    description: `<p>This Ben Hogan Men's Solid Ottoman Golf Polo Shirt makes for versatile casual wear or golf apparel.
-      Built-in moisture wicking and sun protection keep you feeling dry while blocking out harmful UV rays.</p>
-      <p>Durable textured Ottoman fabric and a ribbed collar with three-button placket give it classic polo style.
-      The solid color makes this golf top easy to pair up with any pants or shorts for style that looks great both on and off the course.</p>
-      <h4>Key Features:</h4>
-      <ul>
-        <li>Moisture Wicking technology</li>
-        <li>Stretchy, comfortable fit</li>
-        <li>SPF/UV Protection</li>
-        <li>Easy Care – machine washable</li>
-        <li>Ottoman textured fabric</li>
-        <li>Ribbed collar with three-button placket</li>
-      </ul>`,
-    shortDescription:
-      "Built-in moisture wicking and sun protection keep you feeling dry. Ottoman fabric with a ribbed collar for classic polo style.",
-    price: 187500,
-    originalPrice: 250000,
-    currency: 'Rp',
-    soldCount: 10000,
-    stock: 42,
-    sku: 'BH-POLO-BLK-M',
-    availability: 'in_stock',
-    images: [
-      {
-        id: '1',
-        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
-        alt: "Ben Hogan Golf Polo Shirt – Front View",
-        isPrimary: true,
-      },
-      {
-        id: '2',
-        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
-        alt: "Ben Hogan Golf Polo Shirt – Side View",
-      },
-      {
-        id: '3',
-        url: '/hero2.webp',
-        alt: "Ben Hogan Golf Polo Shirt – Back View",
-      },
-      {
-        id: '4',
-        url: 'https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg',
-        alt: "Ben Hogan Golf Polo Shirt – Detail",
-      },
-      {
-        id: '5',
-        url: '/hero2.webp',
-        alt: "Ben Hogan Golf Polo Shirt – Lifestyle",
-      },
-    ],
-    rating: 4.8,
-    reviewCount: 188,
-    reviews: [
-      {
-        id: '1',
-        userId: 'user1',
-        userName: 'Ahmad Rizaldi',
-        rating: 5,
-        title: 'Great quality polo shirt!',
-        comment:
-          'The fabric is comfortable and breathable. Size is true to label. Very satisfied with the purchase.',
-        date: '2026-02-10',
-        verified: true,
-        helpful: 34,
-      },
-      {
-        id: '2',
-        userId: 'user2',
-        userName: 'Budi Santoso',
-        rating: 5,
-        title: 'Perfect for golf and casual wear',
-        comment:
-          "Bought this for my weekly golf sessions and it's amazing. The moisture wicking really works.",
-        date: '2026-02-08',
-        verified: true,
-        helpful: 21,
-      },
-    ],
-    category: 'Fashion',
-    subcategory: 'Men Tops',
-    brand: 'Ben Hogan',
-    tags: ['polo', 'golf', 'mens', 'moisture-wicking', 'spf'],
-    sizes: [
-      { id: 's1', name: 'S', value: 'S', available: true },
-      { id: 's2', name: 'M', value: 'M', available: true },
-      { id: 's3', name: 'L', value: 'L', available: true },
-      { id: 's4', name: 'XL', value: 'XL', available: true },
-      { id: 's5', name: '2XL', value: '2XL', available: true },
-      { id: 's6', name: '3XL', value: '3XL', available: false },
-    ],
-    colors: [
-      { id: 'c1', name: 'Midnight Black', value: '#1a1a1a', available: true },
-      { id: 'c2', name: 'Light Gray', value: '#d1d5db', available: true },
-    ],
-    specifications: [
-      { label: 'Package Dimensions', value: '27.3 x 24.8 x 4.9 cm; 180 g' },
-      { label: 'Specification', value: 'Moisture Wicking, Stretchy, SPF/UV Protection, Easy Care' },
-      { label: 'Date First Available', value: 'August 08, 2023' },
-      { label: 'Department', value: 'Mens' },
-    ],
-    seller: {
-      id: 'seller1',
-      name: 'Barudak Disaster Mall',
+    id: api._id,
+    slug: api.slug,
+    name: api.name,
+    description: api.description,
+    shortDescription: api.shortDescription || api.description.substring(0, 200),
+    price: api.price,
+    originalPrice: api.originalPrice,
+    discount: api.discount,
+    currency: '$',
+    stock: api.stock,
+    sku: api.sku || '',
+    availability: api.stock > 10 ? 'in_stock' : api.stock > 0 ? 'low_stock' : 'out_of_stock',
+    images: api.images.map((url, i) => ({
+      id: String(i + 1),
+      url: url.startsWith('http') || url.startsWith('/') ? url : `http://localhost:5000${url}`,
+      alt: `${api.name} image ${i + 1}`,
+      isPrimary: i === 0,
+    })),
+    rating: api.rating,
+    reviewCount: api.numReviews,
+    reviews: reviews.map((r: any) => ({
+      id: r._id,
+      userId: r.user?._id || '',
+      userName: r.user?.name || 'Anonymous',
+      rating: r.rating,
+      title: r.title || '',
+      comment: r.comment,
+      date: r.createdAt,
       verified: true,
-      rating: 96,
-      location: 'Tulungagung',
-      chatReply: 98,
-    },
+      helpful: r.helpful || 0,
+    })),
+    category: categoryName,
+    subcategory: undefined,
+    brand: api.brand,
+    tags: api.tags,
+    sizes: sizeVariant?.options.map((opt, i) => ({
+      id: `s${i}`,
+      name: opt,
+      value: opt,
+      available: true,
+    })),
+    colors: colorVariant?.options.map((opt, i) => ({
+      id: `c${i}`,
+      name: opt,
+      value: opt,
+      available: true,
+    })),
+    specifications: api.specifications?.map((s) => ({
+      label: s.key,
+      value: s.value,
+    })),
     shipping: {
-      freeShipping: true,
+      freeShipping: api.shipping?.freeShipping || false,
       estimatedDays: '2-4 business days',
     },
-    metaTitle: "Ben Hogan Men's Solid Ottoman Golf Polo Shirt | Free Shipping",
-    metaDescription:
-      "Shop Ben Hogan Men's Solid Ottoman Golf Polo Shirt. Moisture wicking, SPF/UV protection, stretchy comfort. Great for golf and casual wear.",
-    keywords: ['polo shirt', 'golf shirt', 'mens polo', 'moisture wicking shirt'],
-    createdAt: '2023-08-08',
-    updatedAt: '2026-02-15',
-    featured: true,
-    bestseller: true,
-    relatedProducts: ['2', '3', '4', '5'],
-  };
+    createdAt: api.createdAt,
+    updatedAt: api.updatedAt,
+    featured: api.isFeatured,
+    soldCount: api.soldCount,
+    _categorySlug: categorySlug,
+  } as Product & { _categorySlug?: string };
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { slug: string } 
-}): Promise<Metadata> {
-  const product = await getProduct(params.slug);
-  
-  return {
-      title: product.metaTitle || `${product.name} | Store`,
-    description: product.metaDescription || product.shortDescription,
-    keywords: product.keywords?.join(', '),
-    openGraph: {
-      title: product.name,
-      description: product.shortDescription,
-      images: [
-        {
-          url: product.images[0]?.url || '/default-og-image.jpg',
-          width: 1200,
-          height: 630,
-          alt: product.name
-        }
-      ],
-      type: 'website'
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: product.name,
-      description: product.shortDescription,
-      images: [product.images[0]?.url || '/default-twitter-image.jpg']
-    },
-    robots: {
-      index: true,
-      follow: true
-    }
-  };
-}
+export default function ProductPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
+  const [product, setProduct] = useState<(Product & { _categorySlug?: string }) | null>(null);
+  const [loading, setLoading] = useState(true);
 
-// Product Details Page Component
-export default async function ProductPage({ 
-  params 
-}: { 
-  params: { slug: string } 
-}) {
-  const product = await getProduct(params.slug);
-
-  // JSON-LD structured data for SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: product.images.map(img => img.url),
-    description: product.shortDescription,
-    sku: product.sku,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand
-    },
-    offers: {
-      '@type': 'Offer',
-      url: `https://yourstore.com/product/${product.slug}`,
-      priceCurrency: 'IDR',
-      price: product.price,
-      priceValidUntil: '2026-12-31',
-      itemCondition: 'https://schema.org/NewCondition',
-      availability: product.availability === 'in_stock' 
-        ? 'https://schema.org/InStock' 
-        : 'https://schema.org/OutOfStock',
-      seller: {
-        '@type': 'Organization',
-        name: 'E-Commerce Store'
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      try {
+        const apiProduct = await productService.getProductBySlug(slug);
+        let reviews: any[] = [];
+        try {
+          const reviewRes = await reviewService.getProductReviews(apiProduct._id);
+          reviews = reviewRes;
+        } catch { /* no reviews */ }
+        setProduct(mapApiToProduct(apiProduct, reviews));
+      } catch {
+        setProduct(null);
+      } finally {
+        setLoading(false);
       }
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount
-    }
-  };
+    })();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="container py-5 text-center">
+        <h2>Product not found</h2>
+        <p>The product you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+      </div>
+    );
+  }
 
   return (
     <React.Fragment>
-      {/* JSON-LD for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="product-page">
         <div className="container">
-          {/* Breadcrumb Navigation */}
           <Breadcrumb
             items={[
               { label: 'Product', href: '/all-products' },
               { label: product.name },
             ]}
           />
-
-          {/* Product Banner (Image + Content) */}
           <ProductBanner product={product} />
         </div>
 
-        {/* Product Tabs (Description, Specs, Reviews) */}
         <div className="container mt-5">
           <ProductTabs product={product} />
         </div>
 
-        {/* Related Products */}
         <div className="mt-5 mb-5">
-          <RelatedProducts/>
+          <RelatedProducts
+            categorySlug={product._categorySlug}
+            currentProductId={product.id}
+          />
         </div>
       </div>
     </React.Fragment>

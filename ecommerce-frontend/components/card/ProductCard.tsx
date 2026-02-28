@@ -1,26 +1,33 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import SoldBar from "./SoldBar";
 
 interface ProductCardProps {
   id?: string;
+  slug?: string;
   name: string;
   price: number;
   originalPrice?: number;
   discount?: number;
   images: string[];
   isTrending?: boolean;
+  soldCount?: number;
+  rating?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
+  slug,
   name,
   price,
   originalPrice,
   discount,
   images,
   isTrending = false,
+  soldCount,
+  rating,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -33,8 +40,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleMouseLeave = () => {
-    setCurrentImageIndex(0); // optional reset
+    setCurrentImageIndex(0);
   };
+
+  const productLink = slug ? `/product/${slug}` : '#';
+  const displayImages = images.length > 0 ? images : ['/hero1.webp'];
 
   return (
     <div
@@ -50,11 +60,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {isTrending && <div className="trending-badge">TRENDING</div>}
 
         {/* Product Image */}
-        <div className="product-image-container">
-          {images.map((img, index) => (
+        <Link href={productLink} className="product-image-container">
+          {displayImages.map((img, index) => (
             <Image
               key={index}
-              src={img}
+              src={img.startsWith('http') || img.startsWith('/') ? img : `http://localhost:5000${img}`}
               alt={`${name} image ${index + 1}`}
               width={400}
               height={500}
@@ -64,7 +74,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               priority={index === 0}
             />
           ))}
-        </div>
+        </Link>
 
         {/* Image Indicators */}
         {images.length > 1 && (
@@ -107,8 +117,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           )}
         </div>
-        <h3 className="product-name">{name}</h3>
-          <SoldBar sold={750} total={1000} />
+        <Link href={productLink}>
+          <h3 className="product-name">{name}</h3>
+        </Link>
+        {soldCount !== undefined && soldCount > 0 && (
+          <SoldBar sold={soldCount} total={Math.max(soldCount * 1.3, 1000)} />
+        )}
+        {rating !== undefined && rating > 0 && (
+          <div className="product-rating-stars">
+            {[...Array(5)].map((_, i) => (
+              <i key={i} className={i < Math.round(rating) ? 'fi fi-ss-star' : 'fi fi-rr-star'}></i>
+            ))}
+            <span>({rating.toFixed(1)})</span>
+          </div>
+        )}
       </div>
     </div>
   );
