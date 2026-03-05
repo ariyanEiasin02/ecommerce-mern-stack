@@ -12,8 +12,39 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "E-Commerce Platform",
-  description: "Your go-to platform for discovering new products!",
+  title: {
+    default: "ShopHub — Online Shopping for Electronics, Fashion & More",
+    template: "%s | ShopHub",
+  },
+  description:
+    "Shop the latest electronics, fashion, home goods and more at ShopHub. Free shipping on orders over $50. Easy returns. Secure checkout.",
+  keywords: [
+    "online shopping",
+    "ecommerce",
+    "electronics",
+    "fashion",
+    "deals",
+    "free shipping",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "ShopHub",
+    title: "ShopHub — Online Shopping for Electronics, Fashion & More",
+    description:
+      "Discover top-rated products at great prices. Free shipping on orders over $50.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShopHub — Online Shopping",
+    description:
+      "Discover top-rated products at great prices. Free shipping on orders over $50.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
 };
 
 export default function RootLayout({

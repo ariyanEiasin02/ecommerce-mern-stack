@@ -8,17 +8,10 @@ export const couponService = {
         code: string;
         discountType: 'percentage' | 'fixed';
         discountValue: number;
+        discountAmount: number;
         minPurchase: number;
       };
-    }>('/coupons/validate', { code });
-    const { discountType, discountValue, minPurchase, ...rest } = res.data.data;
-    if (subtotal < minPurchase) {
-      throw new Error(`Minimum purchase amount is $${minPurchase.toFixed(2)}`);
-    }
-    const discount =
-      discountType === 'percentage'
-        ? (subtotal * discountValue) / 100
-        : discountValue;
-    return { ...rest, discountType, discountValue, minPurchase, discount };
+    }>('/coupons/validate', { code, subtotal });
+    return res.data.data;
   },
 };

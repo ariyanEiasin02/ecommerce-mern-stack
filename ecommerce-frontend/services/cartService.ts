@@ -4,15 +4,16 @@ export interface CartItem {
   _id: string;
   product: {
     _id: string;
-    name: string;
+    title: string;
     slug: string;
     price: number;
-    originalPrice?: number;
-    images: string[];
+    discount: number;
+    images: { url: string; alt?: string; isPrimary?: boolean }[];
     stock: number;
+    isActive?: boolean;
   };
   quantity: number;
-  selectedVariants?: Record<string, string>;
+  variant?: { type: string; value: string; label?: string };
 }
 
 export interface Cart {
@@ -29,7 +30,7 @@ export const cartService = {
     return res.data.data;
   },
 
-  async addToCart(data: { productId: string; quantity: number; selectedVariants?: Record<string, string> }) {
+  async addToCart(data: { productId: string; quantity: number; variant?: { type: string; value: string } }) {
     const res = await axiosInstance.post<{ success: boolean; data: Cart }>('/cart', data);
     return res.data.data;
   },

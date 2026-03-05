@@ -2,30 +2,27 @@ import { axiosInstance } from '@/config/axiosInstance';
 
 export interface ApiProduct {
   _id: string;
-  name: string;
+  title: string;
   slug: string;
   description: string;
-  shortDescription?: string;
   price: number;
-  originalPrice?: number;
-  discount?: number;
+  discount: number;
   images: { url: string; alt: string; isPrimary?: boolean }[];
   category: { _id: string; name: string; slug: string } | string;
   brand?: string;
   stock: number;
-  sku?: string;
-  variants?: { name: string; options: string[] }[];
+  variants?: { _id?: string; type: string; value: string; label: string; stock: number; priceModifier: number }[];
   specifications?: { key: string; value: string }[];
   tags?: string[];
-  rating: number;
-  numReviews: number;
+  ratings: number;
+  reviewCount: number;
   soldCount: number;
-  isFeatured: boolean;
   isActive: boolean;
   shipping?: {
     weight?: number;
-    dimensions?: { length: number; width: number; height: number };
+    dimensions?: string;
     freeShipping: boolean;
+    estimatedDays: number;
   };
   createdAt: string;
   updatedAt: string;
@@ -85,7 +82,7 @@ export const productService = {
   },
 
   async getTopRated(limit = 8) {
-    return this.getProducts({ sort: '-rating', limit });
+    return this.getProducts({ sort: '-ratings', limit });
   },
 
   async searchProducts(query: string, limit = 20) {

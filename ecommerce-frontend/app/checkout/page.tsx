@@ -57,8 +57,8 @@ const CheckoutPage = () => {
     if (!coupon.trim()) return;
     try {
       const res = await couponService.validateCoupon(coupon, total);
-      setDiscount(res.discount || 0);
-      setCouponMsg(`Coupon applied! You save $${(res.discount || 0).toFixed(2)}`);
+      setDiscount(res.discountAmount || 0);
+      setCouponMsg(`Coupon applied! You save $${(res.discountAmount || 0).toFixed(2)}`);
     } catch (err: any) {
       setDiscount(0);
       setCouponMsg(err?.response?.data?.message || 'Invalid coupon');
@@ -73,14 +73,7 @@ const CheckoutPage = () => {
     setError('');
 
     try {
-      const orderItems = items.map((item: any) => ({
-        product: item.product._id,
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
-
       await orderService.createOrder({
-        items: orderItems,
         shippingInfo: shipping,
         paymentMethod,
         couponCode: coupon || undefined,
@@ -194,11 +187,11 @@ const CheckoutPage = () => {
               <div className="cart-summary">
                 <h5 className="cart-summary__title">Order Summary</h5>
                 {items.map((item: any) => (
-                  <div key={item.product?._id} className="d-flex justify-content-between mb-2" style={{ fontSize: '0.85rem' }}>
+                  <div key={item._id || item.product?._id} className="d-flex justify-content-between mb-2" style={{ fontSize: '0.85rem' }}>
                     <span className="text-truncate" style={{ maxWidth: '60%' }}>
-                      {item.product?.name} × {item.quantity}
+                      {item.product?.title} × {item.quantity}
                     </span>
-                    <span>${(item.product?.price * item.quantity).toFixed(2)}</span>
+                    <span>${((item.product?.price ?? 0) * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
                 <hr />

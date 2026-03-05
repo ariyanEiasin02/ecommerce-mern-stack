@@ -48,41 +48,42 @@ const CartPage = () => {
             <div className="col-lg-8">
               {items.map((item: any) => {
                 const product = item.product;
-                const imgUrl = product?.images?.[0] || '/hero1.webp';
-                const src = imgUrl.startsWith('http') || imgUrl.startsWith('/') ? imgUrl : `http://localhost:5000${imgUrl}`;
+                const imgSrc = product?.images?.[0]?.url || product?.images?.[0] || '/hero1.webp';
+                const src = typeof imgSrc === 'string' && (imgSrc.startsWith('http') || imgSrc.startsWith('/')) ? imgSrc : `http://localhost:5000${imgSrc}`;
+                const effectivePrice = (product?.price ?? 0) - ((product?.price ?? 0) * (product?.discount ?? 0) / 100);
                 return (
                   <div className="cart-item" key={item._id || product?._id}>
                     <Image
                       src={src}
-                      alt={product?.name || 'Product'}
+                      alt={product?.title || 'Product'}
                       width={100}
                       height={100}
                       className="cart-item__image"
                     />
                     <div className="cart-item__info">
                       <div className="cart-item__name">
-                        <Link href={`/product/${product?.slug || ''}`}>{product?.name}</Link>
+                        <Link href={`/product/${product?.slug || ''}`}>{product?.title}</Link>
                       </div>
-                      <div className="cart-item__price">${product?.price?.toFixed(2)}</div>
+                      <div className="cart-item__price">${effectivePrice.toFixed(2)}</div>
                     </div>
                     <div className="cart-item__qty">
                       <button
-                        onClick={() => updateQuantity(product?._id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item._id, item.quantity - 1)}
                         disabled={item.quantity <= 1}
                       >
                         −
                       </button>
                       <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(product?._id, item.quantity + 1)}>
+                      <button onClick={() => updateQuantity(item._id, item.quantity + 1)}>
                         +
                       </button>
                     </div>
                     <div className="cart-item__total">
-                      ${(product?.price * item.quantity).toFixed(2)}
+                      ${(effectivePrice * item.quantity).toFixed(2)}
                     </div>
                     <button
                       className="cart-item__remove"
-                      onClick={() => removeItem(product?._id)}
+                      onClick={() => removeItem(item._id)}
                       aria-label="Remove item"
                     >
                       <i className="fi fi-rr-trash"></i>

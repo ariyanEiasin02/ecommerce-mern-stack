@@ -87,9 +87,17 @@ export const updateUser = asyncHandler(
     }
 
     const allowedFields: Record<string, unknown> = {};
-    const { name, avatar } = req.body;
+    const { name, email, avatar } = req.body;
     if (name) allowedFields.name = name;
     if (avatar) allowedFields.avatar = avatar;
+    if (email) {
+      // Check if email already used by another user
+      const existingUser = await User.findOne({ email, _id: { $ne: req.params.id } });
+      if (existingUser) {
+        return next(new AppError('Email already in use', 400));
+      }
+      allowedFields.email = email;
+    }
 
     const user = await User.findByIdAndUpdate(req.params.id, allowedFields, {
       new: true,

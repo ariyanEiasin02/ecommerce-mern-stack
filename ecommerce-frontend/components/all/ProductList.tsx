@@ -74,7 +74,7 @@ const ProductList: React.FC<ProductListProps> = ({
     const sortMap: Record<string, string> = {
       default: "",
       popularity: "-soldCount",
-      rating: "-rating",
+      rating: "-ratings",
       latest: "-createdAt",
       "price-low": "price",
       "price-high": "-price",
@@ -163,12 +163,12 @@ const ProductList: React.FC<ProductListProps> = ({
                       <ProductCard
                         id={product._id}
                         slug={product.slug}
-                        name={product.name}
-                        price={product.price}
-                        originalPrice={product.originalPrice}
+                        name={product.title}
+                        price={product.discount > 0 ? product.price - (product.price * product.discount / 100) : product.price}
+                        originalPrice={product.discount > 0 ? product.price : undefined}
                         discount={product.discount}
                         images={product.images}
-                        rating={product.rating}
+                        rating={product.ratings}
                         soldCount={product.soldCount}
                       />
                     </div>

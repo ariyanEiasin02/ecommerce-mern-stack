@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const res = await authService.login({ email, password });
-    setUser(res.data.user);
+    setUser(res.user);
   };
 
   const register = async (name: string, email: string, password: string) => {
     const res = await authService.register({ name, email, password });
-    setUser(res.data.user);
+    setUser(res.user);
   };
 
   const logout = async () => {

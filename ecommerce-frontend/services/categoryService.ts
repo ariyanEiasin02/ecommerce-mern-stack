@@ -19,7 +19,7 @@ export const categoryService = {
   },
 
   async getCategoryTree() {
-    const res = await axiosInstance.get<{ success: boolean; data: ApiCategory[] }>('/categories/tree');
+    const res = await axiosInstance.get<{ success: boolean; data: ApiCategory[] }>('/categories?tree=true');
     return res.data.data;
   },
 

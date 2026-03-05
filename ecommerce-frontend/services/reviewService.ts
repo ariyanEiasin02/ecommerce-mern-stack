@@ -14,19 +14,21 @@ export interface Review {
 
 export const reviewService = {
   async getProductReviews(productId: string) {
-    const res = await axiosInstance.get<{ success: boolean; data: Review[] }>(
-      `/reviews/product/${productId}`
+    const res = await axiosInstance.get<{ success: boolean; data: Review[]; pagination: any }>(
+      `/products/${productId}/reviews`
     );
     return res.data.data;
   },
 
-  async createReview(data: { product: string; rating: number; title: string; comment: string }) {
-    const res = await axiosInstance.post<{ success: boolean; data: Review }>('/reviews', data);
+  async createReview(productId: string, data: { rating: number; comment: string }) {
+    const res = await axiosInstance.post<{ success: boolean; data: Review }>(
+      `/products/${productId}/reviews`, data
+    );
     return res.data.data;
   },
 
   async markHelpful(reviewId: string) {
-    const res = await axiosInstance.put<{ success: boolean; data: Review }>(
+    const res = await axiosInstance.post<{ success: boolean; data: Review }>(
       `/reviews/${reviewId}/helpful`
     );
     return res.data.data;

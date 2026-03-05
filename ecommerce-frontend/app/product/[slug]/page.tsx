@@ -15,30 +15,33 @@ function mapApiToProduct(api: ApiProduct, reviews: any[] = []): Product {
   const categorySlug = typeof api.category === 'object' ? api.category.slug : '';
 
   // Map variants to sizes/colors
-  const sizeVariant = api.variants?.find((v) => v.name.toLowerCase() === 'size');
-  const colorVariant = api.variants?.find((v) => v.name.toLowerCase() === 'color');
+  const sizeVariants = api.variants?.filter((v) => v.type.toLowerCase() === 'size') || [];
+  const colorVariants = api.variants?.filter((v) => v.type.toLowerCase() === 'color') || [];
+
+  const originalPrice = api.discount > 0 ? api.price : undefined;
+  const discountedPrice = api.discount > 0 ? api.price - (api.price * api.discount / 100) : api.price;
 
   return {
     id: api._id,
     slug: api.slug,
-    name: api.name,
+    name: api.title,
     description: api.description,
-    shortDescription: api.shortDescription || api.description.substring(0, 200),
-    price: api.price,
-    originalPrice: api.originalPrice,
+    shortDescription: api.description.substring(0, 200),
+    price: discountedPrice,
+    originalPrice,
     discount: api.discount,
     currency: '$',
     stock: api.stock,
-    sku: api.sku || '',
+    sku: api._id.slice(-8).toUpperCase(),
     availability: api.stock > 10 ? 'in_stock' : api.stock > 0 ? 'low_stock' : 'out_of_stock',
-    images: api.images.map((url, i) => ({
+    images: api.images.map((img, i) => ({
       id: String(i + 1),
-      url: url.startsWith('http') || url.startsWith('/') ? url : `http://localhost:5000${url}`,
-      alt: `${api.name} image ${i + 1}`,
-      isPrimary: i === 0,
+      url: img.url.startsWith('http') || img.url.startsWith('/') ? img.url : `http://localhost:5000${img.url}`,
+      alt: img.alt || `${api.title} image ${i + 1}`,
+      isPrimary: img.isPrimary || i === 0,
     })),
-    rating: api.rating,
-    reviewCount: api.numReviews,
+    rating: api.ratings,
+    reviewCount: api.reviewCount,
     reviews: reviews.map((r: any) => ({
       id: r._id,
       userId: r.user?._id || '',
@@ -54,29 +57,29 @@ function mapApiToProduct(api: ApiProduct, reviews: any[] = []): Product {
     subcategory: undefined,
     brand: api.brand,
     tags: api.tags,
-    sizes: sizeVariant?.options.map((opt, i) => ({
+    sizes: sizeVariants.length > 0 ? sizeVariants.map((v, i) => ({
       id: `s${i}`,
-      name: opt,
-      value: opt,
-      available: true,
-    })),
-    colors: colorVariant?.options.map((opt, i) => ({
+      name: v.label,
+      value: v.value,
+      available: v.stock > 0,
+    })) : undefined,
+    colors: colorVariants.length > 0 ? colorVariants.map((v, i) => ({
       id: `c${i}`,
-      name: opt,
-      value: opt,
-      available: true,
-    })),
+      name: v.label,
+      value: v.value,
+      available: v.stock > 0,
+    })) : undefined,
     specifications: api.specifications?.map((s) => ({
       label: s.key,
       value: s.value,
     })),
     shipping: {
       freeShipping: api.shipping?.freeShipping || false,
-      estimatedDays: '2-4 business days',
+      estimatedDays: api.shipping?.estimatedDays ? `${api.shipping.estimatedDays} business days` : '3-5 business days',
     },
     createdAt: api.createdAt,
     updatedAt: api.updatedAt,
-    featured: api.isFeatured,
+    featured: false,
     soldCount: api.soldCount,
     _categorySlug: categorySlug,
   } as Product & { _categorySlug?: string };

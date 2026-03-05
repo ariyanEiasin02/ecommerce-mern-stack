@@ -10,7 +10,7 @@ interface CartContextType {
   itemCount: number;
   total: number;
   loading: boolean;
-  addToCart: (productId: string, quantity: number, variants?: Record<string, string>) => Promise<void>;
+  addToCart: (productId: string, quantity: number, variant?: { type: string; value: string }) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -44,8 +44,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     refreshCart();
   }, [refreshCart]);
 
-  const addToCart = async (productId: string, quantity: number, selectedVariants?: Record<string, string>) => {
-    const data = await cartService.addToCart({ productId, quantity, selectedVariants });
+  const addToCart = async (productId: string, quantity: number, variant?: { type: string; value: string }) => {
+    const data = await cartService.addToCart({ productId, quantity, variant });
     setCart(data);
   };
 
@@ -66,7 +66,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const items = cart?.items ?? [];
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const total = items.reduce((sum, item) => sum + (item.product?.price ?? 0) * item.quantity, 0);
+  const total = items.reduce((sum, item) => {
+    const price = item.product?.price ?? 0;
+    const discount = item.product?.discount ?? 0;
+    const effectivePrice = price - (price * discount / 100);
+    return sum + effectivePrice * item.quantity;
+  }, 0);
 
   return (
     <CartContext.Provider

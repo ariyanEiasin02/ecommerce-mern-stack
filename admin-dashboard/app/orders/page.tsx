@@ -11,7 +11,7 @@ interface Order {
   status: string;
   paymentMethod: string;
   isPaid: boolean;
-  shippingAddress: { city?: string; country?: string };
+  shippingInfo: { city?: string; country?: string };
   createdAt: string;
 }
 

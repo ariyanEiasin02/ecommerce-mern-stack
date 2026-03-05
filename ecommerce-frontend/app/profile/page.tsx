@@ -11,7 +11,7 @@ const ProfilePage = () => {
   const { user, updateUser, logout } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'password'>('profile');
-  const [profileForm, setProfileForm] = useState({ name: '', email: '', phone: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', email: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      setProfileForm({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
+      setProfileForm({ name: user.name || '', email: user.email || '' });
     }
   }, [user]);
 
@@ -162,15 +162,6 @@ const ProfilePage = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Phone</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={profileForm.phone}
-                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                      />
-                    </div>
                   </div>
                   <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
                     {loading ? <span className="spinner-border spinner-border-sm me-2" /> : null}
@@ -201,7 +192,7 @@ const ProfilePage = () => {
                         <span className="order-item__date">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </span>
-                        <span className="order-item__total">${order.totalAmount?.toFixed(2)}</span>
+                        <span className="order-item__total">${order.totalPrice?.toFixed(2)}</span>
                       </div>
                       <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
                         {order.items?.length || 0} item(s)

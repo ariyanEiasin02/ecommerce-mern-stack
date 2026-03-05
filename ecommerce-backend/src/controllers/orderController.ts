@@ -6,6 +6,7 @@ import Coupon from '../models/Coupon';
 import { AppError } from '../utils/AppError';
 import asyncHandler from '../utils/asyncHandler';
 import { AuthRequest } from '../types';
+import { emitOrderCreated, emitOrderStatusUpdate } from '../socket';
 
 // @desc    Create order from cart
 // @route   POST /api/orders
@@ -132,6 +133,9 @@ export const createOrder = asyncHandler(
 
     // Clear cart
     await Cart.findOneAndUpdate({ user: req.user!._id }, { items: [] });
+
+    // Emit real-time notification to admin
+    emitOrderCreated(order);
 
     res.status(201).json({
       success: true,
@@ -287,6 +291,9 @@ export const updateOrderStatus = asyncHandler(
 
     order.status = status;
     await order.save();
+
+    // Emit real-time notification to user and admin
+    emitOrderStatusUpdate(order.user.toString(), order);
 
     res.status(200).json({
       success: true,

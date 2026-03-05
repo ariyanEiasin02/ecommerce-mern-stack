@@ -1,15 +1,12 @@
 import { axiosInstance } from '@/config/axiosInstance';
 
 export interface OrderItem {
-  product: {
-    _id: string;
-    name: string;
-    slug: string;
-    images: string[];
-  };
-  quantity: number;
+  product: string;
+  title: string;
   price: number;
-  selectedVariants?: Record<string, string>;
+  quantity: number;
+  image: string;
+  variant?: { type: string; value: string; label: string };
 }
 
 export interface Order {
@@ -25,18 +22,22 @@ export interface Order {
     zipCode: string;
     country: string;
   };
-  payment: {
-    method: string;
+  paymentMethod: 'stripe' | 'cod';
+  paymentResult?: {
+    id: string;
     status: string;
-    transactionId?: string;
+    stripeSessionId?: string;
   };
   subtotal: number;
-  shippingCost: number;
-  tax: number;
-  discount: number;
-  total: number;
+  taxPrice: number;
+  shippingPrice: number;
+  discountAmount: number;
+  totalPrice: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  coupon?: string;
+  couponCode?: string;
+  isPaid: boolean;
+  paidAt?: string;
+  deliveredAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +45,7 @@ export interface Order {
 export const orderService = {
   async createOrder(data: {
     shippingInfo: Order['shippingInfo'];
+    paymentMethod?: string;
     couponCode?: string;
   }) {
     const res = await axiosInstance.post<{ success: boolean; data: Order }>('/orders', data);
@@ -51,7 +53,7 @@ export const orderService = {
   },
 
   async getMyOrders() {
-    const res = await axiosInstance.get<{ success: boolean; data: Order[] }>('/orders/my-orders');
+    const res = await axiosInstance.get<{ success: boolean; data: Order[]; pagination: any }>('/orders');
     return res.data.data;
   },
 

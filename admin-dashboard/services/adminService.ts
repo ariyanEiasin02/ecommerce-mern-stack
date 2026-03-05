@@ -136,7 +136,7 @@ export const adminUserService = {
 
   async getById(id: string) {
     const res = await adminAxios.get(`/users/${id}`);
-    return res.data.data;
+    return res.data.user;
   },
 
   async toggleBlock(id: string) {

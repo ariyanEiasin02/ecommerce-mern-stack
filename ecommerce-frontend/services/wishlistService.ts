@@ -2,12 +2,13 @@ import { axiosInstance } from '@/config/axiosInstance';
 
 export interface WishlistProduct {
   _id: string;
-  name: string;
+  title: string;
   slug: string;
   price: number;
-  originalPrice?: number;
-  images: string[];
-  rating: number;
+  discount: number;
+  images: { url: string; alt?: string; isPrimary?: boolean }[];
+  ratings: number;
+  reviewCount: number;
   stock: number;
 }
 
@@ -24,8 +25,8 @@ export const wishlistService = {
   },
 
   async toggleWishlist(productId: string) {
-    const res = await axiosInstance.post<{ success: boolean; data: Wishlist; message: string }>(
-      `/wishlist/${productId}`
+    const res = await axiosInstance.post<{ success: boolean; data: Wishlist; message: string; action: string }>(
+      '/wishlist', { productId }
     );
     return res.data;
   },

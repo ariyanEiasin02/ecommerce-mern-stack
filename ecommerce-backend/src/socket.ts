@@ -3,6 +3,16 @@ import { Server, Socket } from 'socket.io';
 
 let io: Server;
 
+// In-memory notification store for admin (persists until server restart)
+const adminNotifications: {
+  id: string;
+  type: string;
+  message: string;
+  data: any;
+  read: boolean;
+  createdAt: Date;
+}[] = [];
+
 export const initializeSocket = (httpServer: HttpServer): Server => {
   io = new Server(httpServer, {
     cors: {
@@ -22,7 +32,23 @@ export const initializeSocket = (httpServer: HttpServer): Server => {
       socket.join(`user:${data.userId}`);
       if (data.role === 'superAdmin') {
         socket.join('admin');
+        // Send existing unread notifications
+        const unread = adminNotifications.filter((n) => !n.read);
+        socket.emit('notifications:initial', unread);
       }
+    });
+
+    // Mark notification as read
+    socket.on('notification:read', (notificationId: string) => {
+      const notification = adminNotifications.find((n) => n.id === notificationId);
+      if (notification) {
+        notification.read = true;
+      }
+    });
+
+    // Mark all notifications as read
+    socket.on('notifications:readAll', () => {
+      adminNotifications.forEach((n) => (n.read = true));
     });
 
     socket.on('disconnect', () => {
@@ -43,7 +69,22 @@ export const getIO = (): Server => {
 // Emit events
 export const emitOrderCreated = (order: any): void => {
   if (io) {
-    io.to('admin').emit('order:new', order);
+    const notification = {
+      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: 'order:new',
+      message: `New order #${order._id.toString().slice(-6).toUpperCase()} placed - $${order.totalPrice.toFixed(2)}`,
+      data: {
+        orderId: order._id,
+        totalPrice: order.totalPrice,
+        itemCount: order.items.length,
+      },
+      read: false,
+      createdAt: new Date(),
+    };
+    adminNotifications.unshift(notification);
+    // Keep only last 50 notifications
+    if (adminNotifications.length > 50) adminNotifications.length = 50;
+    io.to('admin').emit('order:new', notification);
   }
 };
 
@@ -52,7 +93,13 @@ export const emitOrderStatusUpdate = (
   order: any
 ): void => {
   if (io) {
-    io.to(`user:${userId}`).emit('order:statusUpdate', order);
+    // Notify the customer
+    io.to(`user:${userId}`).emit('order:statusUpdate', {
+      orderId: order._id,
+      status: order.status,
+      message: `Your order #${order._id.toString().slice(-6).toUpperCase()} is now ${order.status}`,
+    });
+    // Notify admin dashboard to refresh
     io.to('admin').emit('dashboard:refresh');
   }
 };

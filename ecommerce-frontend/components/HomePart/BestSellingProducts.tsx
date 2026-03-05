@@ -23,12 +23,12 @@ const BestSellingProducts = () => {
               <ProductCard
                 id={product._id}
                 slug={product.slug}
-                name={product.name}
-                price={product.price}
-                originalPrice={product.originalPrice}
+                name={product.title}
+                price={product.discount > 0 ? product.price - (product.price * product.discount / 100) : product.price}
+                originalPrice={product.discount > 0 ? product.price : undefined}
                 discount={product.discount}
                 images={product.images}
-                rating={product.rating}
+                rating={product.ratings}
                 soldCount={product.soldCount}
               />
             </div>

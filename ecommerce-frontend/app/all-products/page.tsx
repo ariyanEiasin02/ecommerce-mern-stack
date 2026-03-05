@@ -1,5 +1,11 @@
 import ProductList from '@/components/all/ProductList'
+import { Metadata } from 'next'
 import React from 'react'
+
+export const metadata: Metadata = {
+  title: 'All Products',
+  description: 'Browse our complete catalog of products. Filter by category, price, and ratings to find exactly what you need.',
+}
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
