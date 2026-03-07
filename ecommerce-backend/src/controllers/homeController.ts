@@ -6,20 +6,33 @@ import asyncHandler from '../utils/asyncHandler';
 
 const HOME_PRODUCT_LIMIT = 8;
 
-const productProjection = {
-  title: 1,
-  slug: 1,
-  price: 1,
-  discount: 1,
-  images: 1,
-  ratings: 1,
-  reviewCount: 1,
-  soldCount: 1,
-  isActive: 1,
-  createdAt: 1,
-  category: 1,
-  brand: 1,
-};
+// Only the fields needed for home page product cards
+const productProjection = { title: 1, price: 1, discount: 1, images: 1, soldCount: 1, stock: 1 };
+
+/** Shape each raw product document into the lean card payload. */
+function mapProduct(p: any) {
+  const originalPrice: number = p.price;
+  const discount: number = p.discount ?? 0;
+  const sellingPrice = discount > 0
+    ? +((originalPrice * (1 - discount / 100)).toFixed(2))
+    : originalPrice;
+
+  // Up to 2 image URLs: index 0 = default display, index 1 = hover
+  const images: string[] = (p.images as any[])
+    .slice(0, 2)
+    .map((img: any) => img.url as string);
+
+  return {
+    id: p._id,
+    name: p.title,
+    price: sellingPrice,
+    originalPrice: discount > 0 ? originalPrice : undefined,
+    discount: discount > 0 ? discount : undefined,
+    images,
+    sold: p.soldCount ?? 0,
+    stock: p.stock ?? 0,
+  };
+}
 
 // @desc    Get all home page data (public)
 // @route   GET /api/home
@@ -54,15 +67,13 @@ export const getHomePageData = asyncHandler(
         .sort({ createdAt: -1 })
         .limit(HOME_PRODUCT_LIMIT)
         .select(productProjection)
-        .populate('category', 'name slug')
         .lean(),
 
       // Trending: active products from the last 30 days, highest soldCount
       Product.find({ isActive: true, createdAt: { $gte: thirtyDaysAgo } })
-        .sort({ soldCount: -1, ratings: -1 })
+        .sort({ soldCount: -1 })
         .limit(HOME_PRODUCT_LIMIT)
         .select(productProjection)
-        .populate('category', 'name slug')
         .lean(),
 
       // Best Selling: all-time highest soldCount
@@ -70,7 +81,6 @@ export const getHomePageData = asyncHandler(
         .sort({ soldCount: -1 })
         .limit(HOME_PRODUCT_LIMIT)
         .select(productProjection)
-        .populate('category', 'name slug')
         .lean(),
 
       // Top Rated: highest ratings (min 1 review to avoid zero-review products)
@@ -78,7 +88,6 @@ export const getHomePageData = asyncHandler(
         .sort({ ratings: -1, reviewCount: -1 })
         .limit(HOME_PRODUCT_LIMIT)
         .select(productProjection)
-        .populate('category', 'name slug')
         .lean(),
     ]);
 
@@ -100,10 +109,10 @@ export const getHomePageData = asyncHandler(
         rightTop,
         rightBottom,
         categories,
-        newArrivals,
-        trendingProducts,
-        bestSellingProducts,
-        topRatedProducts,
+        newArrivals: (newArrivals as any[]).map(mapProduct),
+        trendingProducts: (trendingProducts as any[]).map(mapProduct),
+        bestSellingProducts: (bestSellingProducts as any[]).map(mapProduct),
+        topRatedProducts: (topRatedProducts as any[]).map(mapProduct),
       },
     });
   }
