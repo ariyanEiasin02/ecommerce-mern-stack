@@ -154,7 +154,16 @@ export const updateCategory = asyncHandler(
       return next(new AppError('Category cannot be its own parent', 400));
     }
 
-    category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+    // Whitelist allowed fields to prevent mass assignment
+    const allowedFields = ['name', 'slug', 'description', 'image', 'parentCategory', 'isActive'];
+    const updateData: Record<string, unknown> = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
+    category = await Category.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });

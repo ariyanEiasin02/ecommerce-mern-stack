@@ -1,7 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { adminCouponService } from "@/services/adminService";
 import { toast } from "react-toastify";
+import { Table, Button, Input, ConfirmDeleteModal } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface Coupon {
   _id: string;
@@ -32,7 +34,8 @@ const CouponsPage = () => {
   const [formData, setFormData] = useState(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Coupon | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchCoupons = async () => {
     try {
@@ -87,45 +90,119 @@ const CouponsPage = () => {
     }
   };
 
-  const handleDelete = async (id: string, code: string) => {
-    if (!window.confirm(`Delete coupon "${code}"?`)) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await adminCouponService.delete(id);
-      setCoupons((prev) => prev.filter((c) => c._id !== id));
-      toast.success(`Coupon "${code}" deleted`);
+      await adminCouponService.delete(deleteTarget._id);
+      setCoupons((prev) => prev.filter((c) => c._id !== deleteTarget._id));
+      toast.success(`Coupon "${deleteTarget.code}" deleted`);
+      setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete coupon");
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
   const isExpired = (date: string) => new Date(date) < new Date();
 
+  const columns: TableColumn<Coupon>[] = useMemo(
+    () => [
+      {
+        key: "code",
+        label: "Code",
+        render: (c) => (
+          <span className="fw-bold" style={{ fontFamily: "monospace", letterSpacing: 1 }}>
+            {c.code}
+          </span>
+        ),
+      },
+      {
+        key: "discount",
+        label: "Discount",
+        render: (c) => (
+          <strong>
+            {c.discountType === "percentage" ? `${c.discountValue}%` : `$${c.discountValue}`}
+          </strong>
+        ),
+      },
+      {
+        key: "minPurchase",
+        label: "Min Purchase",
+        render: (c) => <>${c.minPurchase}</>,
+      },
+      {
+        key: "usage",
+        label: "Usage",
+        render: (c) => (
+          <>
+            {c.usedCount} / {c.maxUses === 0 ? "∞" : c.maxUses}
+          </>
+        ),
+      },
+      {
+        key: "expiresAt",
+        label: "Expires",
+        render: (c) =>
+          new Date(c.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      },
+      {
+        key: "status",
+        label: "Status",
+        render: (c) =>
+          isExpired(c.expiresAt) ? (
+            <span className="active-badge inactive">Expired</span>
+          ) : (
+            <span className={`active-badge ${c.isActive ? "active" : "inactive"}`}>
+              {c.isActive ? "Active" : "Inactive"}
+            </span>
+          ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        className: "text-center",
+        render: (c) => (
+          <div className="action-buttons">
+            <button
+              className="action-btn delete-btn"
+              title="Delete"
+              onClick={() => setDeleteTarget(c)}
+            >
+              <i className="fi fi-rr-trash" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
               <span className="breadcrumb-item active">Coupons</span>
             </nav>
           </div>
-          <button className="btn-create" onClick={() => setShowForm(!showForm)}>
-            <i className={`fi fi-rr-${showForm ? "cross" : "plus"}`}></i>
-            <span>{showForm ? "Cancel" : "Add Coupon"}</span>
-          </button>
+          <Button
+            variant={showForm ? "danger" : "primary"}
+            icon={<i className={`fi fi-rr-${showForm ? "cross" : "plus"}`} />}
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Cancel" : "Add Coupon"}
+          </Button>
         </div>
       </div>
 
-      {/* Create Form */}
       {showForm && (
         <div className="table-container mb-3">
           <div className="table-header">
@@ -135,10 +212,8 @@ const CouponsPage = () => {
             {apiError && <div className="alert alert-danger mb-3">{apiError}</div>}
             <div className="row g-3">
               <div className="col-md-3">
-                <label className="form-label fw-semibold">Code *</label>
-                <input
-                  type="text"
-                  className="form-control"
+                <Input
+                  label="Code *"
                   name="code"
                   value={formData.code}
                   onChange={handleChange}
@@ -154,68 +229,58 @@ const CouponsPage = () => {
                 </select>
               </div>
               <div className="col-md-3">
-                <label className="form-label fw-semibold">
-                  Value ({formData.discountType === "percentage" ? "%" : "$"}) *
-                </label>
-                <input
+                <Input
+                  label={`Value (${formData.discountType === "percentage" ? "%" : "$"}) *`}
                   type="number"
-                  className="form-control"
                   name="discountValue"
                   value={formData.discountValue}
                   onChange={handleChange}
                   placeholder="10"
-                  min="0"
                 />
               </div>
               <div className="col-md-3">
-                <label className="form-label fw-semibold">Min Purchase ($)</label>
-                <input
+                <Input
+                  label="Min Purchase ($)"
                   type="number"
-                  className="form-control"
                   name="minPurchase"
                   value={formData.minPurchase}
                   onChange={handleChange}
                   placeholder="0"
-                  min="0"
                 />
               </div>
               <div className="col-md-4">
-                <label className="form-label fw-semibold">Max Uses (0 = unlimited)</label>
-                <input
+                <Input
+                  label="Max Uses (0 = unlimited)"
                   type="number"
-                  className="form-control"
                   name="maxUses"
                   value={formData.maxUses}
                   onChange={handleChange}
                   placeholder="0"
-                  min="0"
                 />
               </div>
               <div className="col-md-4">
-                <label className="form-label fw-semibold">Expires At *</label>
-                <input
+                <Input
+                  label="Expires At *"
                   type="date"
-                  className="form-control"
                   name="expiresAt"
                   value={formData.expiresAt}
                   onChange={handleChange}
                 />
               </div>
               <div className="col-md-4 d-flex align-items-end">
-                <button type="submit" className="btn btn-dark w-100" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating..." : "Create Coupon"}
-                </button>
+                <Button type="submit" fullWidth loading={isSubmitting}>
+                  Create Coupon
+                </Button>
               </div>
             </div>
           </form>
         </div>
       )}
 
-      {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-ticket" style={{ color: "#6366f1" }}></i>
+            <i className="fi fi-rr-ticket" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
             <h3>{coupons.length}</h3>
@@ -224,7 +289,7 @@ const CouponsPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
-            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }}></i>
+            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
             <h3>{coupons.filter((c) => c.isActive && !isExpired(c.expiresAt)).length}</h3>
@@ -233,7 +298,7 @@ const CouponsPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fee2e2" }}>
-            <i className="fi fi-rr-clock" style={{ color: "#ef4444" }}></i>
+            <i className="fi fi-rr-clock" style={{ color: "#ef4444" }} />
           </div>
           <div className="stat-info">
             <h3>{coupons.filter((c) => isExpired(c.expiresAt)).length}</h3>
@@ -242,94 +307,20 @@ const CouponsPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Coupons</h2>
         </div>
-
-        <div className="table-wrapper">
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Discount</th>
-                  <th>Min Purchase</th>
-                  <th>Usage</th>
-                  <th>Expires</th>
-                  <th>Status</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {coupons.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-4 text-muted">
-                      No coupons found
-                    </td>
-                  </tr>
-                ) : (
-                  coupons.map((c) => (
-                    <tr key={c._id}>
-                      <td>
-                        <span className="fw-bold" style={{ fontFamily: "monospace", letterSpacing: 1 }}>
-                          {c.code}
-                        </span>
-                      </td>
-                      <td>
-                        <strong>
-                          {c.discountType === "percentage"
-                            ? `${c.discountValue}%`
-                            : `$${c.discountValue}`}
-                        </strong>
-                      </td>
-                      <td>${c.minPurchase}</td>
-                      <td>
-                        {c.usedCount} / {c.maxUses === 0 ? "∞" : c.maxUses}
-                      </td>
-                      <td>
-                        {new Date(c.expiresAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </td>
-                      <td>
-                        {isExpired(c.expiresAt) ? (
-                          <span className="active-badge inactive">Expired</span>
-                        ) : (
-                          <span className={`active-badge ${c.isActive ? "active" : "inactive"}`}>
-                            {c.isActive ? "Active" : "Inactive"}
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn delete-btn"
-                            title="Delete"
-                            disabled={deletingId === c._id}
-                            onClick={() => handleDelete(c._id, c.code)}
-                          >
-                            <i className={deletingId === c._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"}></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <Table columns={columns} data={coupons} loading={loading} emptyMessage="No coupons found" rowKey={(c) => c._id} />
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        itemName={deleteTarget?.code || ""}
+      />
     </div>
   );
 };

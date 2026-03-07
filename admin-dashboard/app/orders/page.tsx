@@ -1,7 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { adminOrderService } from "@/services/adminService";
 import { toast } from "react-toastify";
+import { Table, Pagination, Button } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface Order {
   _id: string;
@@ -88,15 +90,94 @@ const OrdersPage = () => {
     fetchOrders(newPage, statusFilter);
   };
 
+  const columns: TableColumn<Order>[] = useMemo(
+    () => [
+      {
+        key: "orderId",
+        label: "Order ID",
+        render: (o) => <span className="slug-text">#{o._id.slice(-6).toUpperCase()}</span>,
+      },
+      {
+        key: "customer",
+        label: "Customer",
+        render: (o) => (
+          <div>
+            <div className="fw-semibold">{o.user?.name || "N/A"}</div>
+            <small className="text-muted">{o.user?.email}</small>
+          </div>
+        ),
+      },
+      {
+        key: "items",
+        label: "Items",
+        render: (o) => <>{o.items?.length || 0}</>,
+      },
+      {
+        key: "totalPrice",
+        label: "Total",
+        render: (o) => <strong>${o.totalPrice?.toFixed(2)}</strong>,
+      },
+      {
+        key: "payment",
+        label: "Payment",
+        render: (o) => (
+          <>
+            <span className="text-uppercase" style={{ fontSize: 11, fontWeight: 600 }}>
+              {o.paymentMethod}
+            </span>
+            {o.isPaid && (
+              <i className="fi fi-rr-check-circle ms-1" style={{ color: "#10b981", fontSize: 12 }} />
+            )}
+          </>
+        ),
+      },
+      {
+        key: "status",
+        label: "Status",
+        render: (o) => (
+          <span className="active-badge" style={statusStyle(o.status)}>
+            {o.status?.charAt(0).toUpperCase() + o.status?.slice(1)}
+          </span>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Date",
+        render: (o) =>
+          new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      },
+      {
+        key: "actions",
+        label: "Update Status",
+        className: "text-center",
+        render: (o) => (
+          <select
+            className="form-select form-select-sm"
+            value={o.status}
+            disabled={updatingId === o._id || o.status === "cancelled" || o.status === "delivered"}
+            onChange={(e) => handleStatusUpdate(o._id, e.target.value)}
+            style={{ width: 130, fontSize: 12 }}
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </option>
+            ))}
+          </select>
+        ),
+      },
+    ],
+    [updatingId]
+  );
+
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
@@ -106,145 +187,32 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Status Filter */}
       <div className="d-flex gap-2 mb-3 flex-wrap px-3">
-        <button
-          className={`btn btn-sm ${!statusFilter ? "btn-dark" : "btn-outline-secondary"}`}
+        <Button
+          variant={!statusFilter ? "primary" : "outline"}
+          size="sm"
           onClick={() => handleFilterChange("")}
         >
           All ({total})
-        </button>
+        </Button>
         {STATUS_OPTIONS.map((s) => (
-          <button
+          <Button
             key={s}
-            className={`btn btn-sm ${statusFilter === s ? "btn-dark" : "btn-outline-secondary"}`}
+            variant={statusFilter === s ? "primary" : "outline"}
+            size="sm"
             onClick={() => handleFilterChange(s)}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
-          </button>
+          </Button>
         ))}
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Orders</h2>
         </div>
-
-        <div className="table-wrapper">
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Items</th>
-                  <th>Total</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th className="text-center">Update Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4 text-muted">
-                      No orders found
-                    </td>
-                  </tr>
-                ) : (
-                  orders.map((order) => (
-                    <tr key={order._id}>
-                      <td>
-                        <span className="slug-text">
-                          #{order._id.slice(-6).toUpperCase()}
-                        </span>
-                      </td>
-                      <td>
-                        <div>
-                          <div className="fw-semibold">{order.user?.name || "N/A"}</div>
-                          <small className="text-muted">{order.user?.email}</small>
-                        </div>
-                      </td>
-                      <td>{order.items?.length || 0}</td>
-                      <td>
-                        <strong>${order.totalPrice?.toFixed(2)}</strong>
-                      </td>
-                      <td>
-                        <span className="text-uppercase" style={{ fontSize: 11, fontWeight: 600 }}>
-                          {order.paymentMethod}
-                        </span>
-                        {order.isPaid && (
-                          <i className="fi fi-rr-check-circle ms-1" style={{ color: "#10b981", fontSize: 12 }}></i>
-                        )}
-                      </td>
-                      <td>
-                        <span className="active-badge" style={statusStyle(order.status)}>
-                          {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
-                        </span>
-                      </td>
-                      <td>
-                        {new Date(order.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </td>
-                      <td>
-                        <select
-                          className="form-select form-select-sm"
-                          value={order.status}
-                          disabled={updatingId === order._id || order.status === "cancelled" || order.status === "delivered"}
-                          onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                          style={{ width: 130, fontSize: 12 }}
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {s.charAt(0).toUpperCase() + s.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="table-footer">
-            <div className="showing-info">
-              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-            </div>
-            <div className="pagination">
-              <button className="page-btn" disabled={page <= 1} onClick={() => handlePageChange(page - 1)}>
-                <i className="fi fi-rr-angle-left"></i>
-              </button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const start = Math.max(1, Math.min(page - 2, totalPages - 4));
-                const num = start + i;
-                return (
-                  <button key={num} className={`page-btn ${num === page ? "active" : ""}`} onClick={() => handlePageChange(num)}>
-                    {num}
-                  </button>
-                );
-              })}
-              <button className="page-btn" disabled={page >= totalPages} onClick={() => handlePageChange(page + 1)}>
-                <i className="fi fi-rr-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        )}
+        <Table columns={columns} data={orders} loading={loading} emptyMessage="No orders found" rowKey={(o) => o._id} />
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} total={total} />
       </div>
     </div>
   );

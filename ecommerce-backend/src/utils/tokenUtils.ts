@@ -2,9 +2,13 @@ import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 
 export const generateToken = (userId: string, role: string): string => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+  }
   return jwt.sign(
     { id: userId, role },
-    process.env.JWT_SECRET as jwt.Secret,
+    jwtSecret as jwt.Secret,
     { expiresIn: (process.env.JWT_EXPIRE || '7d') as string } as jwt.SignOptions
   );
 };

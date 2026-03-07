@@ -296,7 +296,20 @@ export const updateProduct = asyncHandler(
       req.body.images = [...(product.images || []), ...newImages];
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    // Whitelist allowed fields to prevent mass assignment
+    const allowedFields = [
+      'title', 'slug', 'description', 'price', 'discount', 'stock',
+      'category', 'brand', 'variants', 'specifications', 'shipping',
+      'tags', 'images', 'isActive',
+    ];
+    const updateData: Record<string, unknown> = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
+    product = await Product.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });

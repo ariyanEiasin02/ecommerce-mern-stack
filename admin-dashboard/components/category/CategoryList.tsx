@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { adminCategoryService, getAssetUrl } from "@/services/adminService";
 import { toast } from "react-toastify";
+import { Table, Button, ConfirmDeleteModal } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface Category {
   _id: string;
@@ -20,7 +22,8 @@ const CategoryList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -38,40 +41,112 @@ const CategoryList = () => {
     fetchCategories();
   }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await adminCategoryService.delete(id);
-      setCategories((prev) => prev.filter((c) => c._id !== id));
-      toast.success(`"${name}" deleted successfully`);
+      await adminCategoryService.delete(deleteTarget._id);
+      setCategories((prev) => prev.filter((c) => c._id !== deleteTarget._id));
+      toast.success(`"${deleteTarget.name}" deleted successfully`);
+      setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete category");
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-  if (loading) {
-    return (
-      <div className="category-page">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 300 }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+  const columns: TableColumn<Category>[] = useMemo(
+    () => [
+      {
+        key: "image",
+        label: "Image",
+        render: (cat) =>
+          cat.image ? (
+            <img
+              src={getAssetUrl(cat.image)}
+              alt={cat.name}
+              style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 40, height: 40, borderRadius: 6, backgroundColor: "#f1f5f9",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }} />
+            </div>
+          ),
+      },
+      {
+        key: "name",
+        label: "Category Name",
+        render: (cat) => (
+          <div className="category-name">
+            <span>{cat.name}</span>
           </div>
-        </div>
-      </div>
-    );
-  }
+        ),
+      },
+      {
+        key: "slug",
+        label: "Slug",
+        render: (cat) => <span className="slug-text">{cat.slug}</span>,
+      },
+      {
+        key: "parent",
+        label: "Parent",
+        render: (cat) => (
+          <span className="description-text">{cat.parentCategory?.name || "—"}</span>
+        ),
+      },
+      {
+        key: "isActive",
+        label: "Active",
+        render: (cat) => (
+          <span className={`active-badge ${cat.isActive ? "active" : "inactive"}`}>
+            {cat.isActive ? "Active" : "Inactive"}
+          </span>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Created Date",
+        render: (cat) => (
+          <div className="date-cell">
+            <span className="date">{formatDate(cat.createdAt)}</span>
+          </div>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        className: "text-center",
+        render: (cat) => (
+          <div className="action-buttons">
+            <button
+              className="action-btn edit-btn"
+              title="Edit"
+              onClick={() => router.push(`/category/edit/${cat._id}`)}
+            >
+              <i className="fi fi-rr-pencil" />
+            </button>
+            <button
+              className="action-btn delete-btn"
+              title="Delete"
+              onClick={() => setDeleteTarget(cat)}
+            >
+              <i className="fi fi-rr-trash" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [router]
+  );
 
   if (error) {
     return (
@@ -83,13 +158,12 @@ const CategoryList = () => {
 
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
@@ -98,21 +172,19 @@ const CategoryList = () => {
               <span className="breadcrumb-item active">List</span>
             </nav>
           </div>
-          <button
-            className="btn-create"
+          <Button
+            icon={<i className="fi fi-rr-plus" />}
             onClick={() => router.push("/category/add")}
           >
-            <i className="fi fi-rr-plus"></i>
-            <span>Create Category</span>
-          </button>
+            Create Category
+          </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
-            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }}></i>
+            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
             <h3>{categories.filter((c) => c.isActive).length}</h3>
@@ -121,7 +193,7 @@ const CategoryList = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fee2e2" }}>
-            <i className="fi fi-rr-cross-circle" style={{ color: "#ef4444" }}></i>
+            <i className="fi fi-rr-cross-circle" style={{ color: "#ef4444" }} />
           </div>
           <div className="stat-info">
             <h3>{categories.filter((c) => !c.isActive).length}</h3>
@@ -130,7 +202,7 @@ const CategoryList = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fef3c7" }}>
-            <i className="fi fi-rr-folder" style={{ color: "#f59e0b" }}></i>
+            <i className="fi fi-rr-folder" style={{ color: "#f59e0b" }} />
           </div>
           <div className="stat-info">
             <h3>{categories.filter((c) => c.parentCategory).length}</h3>
@@ -139,7 +211,7 @@ const CategoryList = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }}></i>
+            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
             <h3>{categories.length}</h3>
@@ -148,114 +220,31 @@ const CategoryList = () => {
         </div>
       </div>
 
-      {/* Table Section */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Categories</h2>
         </div>
-
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Category Name</th>
-                <th>Slug</th>
-                <th>Parent</th>
-                <th>Active</th>
-                <th>Created Date</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-4 text-muted">
-                    No categories found. Create your first category!
-                  </td>
-                </tr>
-              ) : (
-                categories.map((cat) => (
-                  <tr key={cat._id}>
-                    <td>
-                      {cat.image ? (
-                        <img
-                          src={getAssetUrl(cat.image!)}
-                          alt={cat.name}
-                          style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 6,
-                            backgroundColor: "#f1f5f9",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }}></i>
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <div className="category-name">
-                        <span>{cat.name}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="slug-text">{cat.slug}</span>
-                    </td>
-                    <td>
-                      <span className="description-text">
-                        {cat.parentCategory?.name || "—"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`active-badge ${cat.isActive ? "active" : "inactive"}`}>
-                        {cat.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="date-cell">
-                        <span className="date">{formatDate(cat.createdAt)}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn edit-btn"
-                          title="Edit"
-                          onClick={() => router.push(`/category/edit/${cat._id}`)}
-                        >
-                          <i className="fi fi-rr-pencil"></i>
-                        </button>
-                        <button
-                          className="action-btn delete-btn"
-                          title="Delete"
-                          disabled={deletingId === cat._id}
-                          onClick={() => handleDelete(cat._id, cat.name)}
-                        >
-                          <i className={deletingId === cat._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"}></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer */}
+        <Table
+          columns={columns}
+          data={categories}
+          loading={loading}
+          emptyMessage="No categories found. Create your first category!"
+          rowKey={(c) => c._id}
+        />
         <div className="table-footer">
           <div className="showing-info">
             Showing <strong>{categories.length}</strong> categories
           </div>
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        itemName={deleteTarget?.name || ""}
+      />
     </div>
   );
 };

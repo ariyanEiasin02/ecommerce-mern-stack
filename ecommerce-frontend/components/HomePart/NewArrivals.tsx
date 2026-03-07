@@ -13,6 +13,7 @@ const NewArrivals = () => {
       .catch(() => setProducts([]));
   }, []);
 
+
   return (
     <section className="section-header">
       <div className="container">

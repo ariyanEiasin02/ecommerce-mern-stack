@@ -1,8 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { adminProductService, getAssetUrl } from "@/services/adminService";
 import { toast } from "react-toastify";
+import { Table, Pagination, Button, ConfirmDeleteModal } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface Product {
   _id: string;
@@ -26,7 +28,8 @@ const AllProducts = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchProducts = async (p = page, s = search) => {
     try {
@@ -58,30 +61,121 @@ const AllProducts = () => {
     fetchProducts(newPage, search);
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Delete "${title}"?`)) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await adminProductService.delete(id);
-      setProducts((prev) => prev.filter((p) => p._id !== id));
+      await adminProductService.delete(deleteTarget._id);
+      setProducts((prev) => prev.filter((p) => p._id !== deleteTarget._id));
       setTotal((prev) => prev - 1);
-      toast.success(`"${title}" deleted successfully`);
+      toast.success(`"${deleteTarget.title}" deleted successfully`);
+      setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete product");
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
+  const columns: TableColumn<Product>[] = useMemo(
+    () => [
+      {
+        key: "image",
+        label: "Image",
+        render: (p) =>
+          p.images?.[0] ? (
+            <img
+              src={getAssetUrl(p.images[0].url)}
+              alt={p.title}
+              style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 40, height: 40, borderRadius: 6, backgroundColor: "#f1f5f9",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }} />
+            </div>
+          ),
+      },
+      {
+        key: "title",
+        label: "Title",
+        render: (p) => (
+          <span className="text-truncate d-inline-block" style={{ maxWidth: 200 }}>
+            {p.title}
+          </span>
+        ),
+      },
+      {
+        key: "category",
+        label: "Category",
+        render: (p) => <>{p.category?.name || "—"}</>,
+      },
+      {
+        key: "price",
+        label: "Price",
+        render: (p) =>
+          p.discount > 0 ? (
+            <>
+              <span className="text-decoration-line-through text-muted me-1">${p.price}</span>
+              <strong>${(p.price * (1 - p.discount / 100)).toFixed(2)}</strong>
+            </>
+          ) : (
+            <strong>${p.price}</strong>
+          ),
+      },
+      {
+        key: "stock",
+        label: "Stock",
+        render: (p) => (
+          <span className={`active-badge ${p.stock > 0 ? "active" : "inactive"}`}>{p.stock}</span>
+        ),
+      },
+      {
+        key: "soldCount",
+        label: "Sold",
+        render: (p) => <>{p.soldCount}</>,
+      },
+      {
+        key: "isActive",
+        label: "Active",
+        render: (p) => (
+          <span className={`active-badge ${p.isActive ? "active" : "inactive"}`}>
+            {p.isActive ? "Active" : "Inactive"}
+          </span>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        className: "text-center",
+        render: (p) => (
+          <div className="action-buttons">
+            <button
+              className="action-btn delete-btn"
+              title="Delete"
+              onClick={() => setDeleteTarget(p)}
+            >
+              <i className="fi fi-rr-trash" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
@@ -90,18 +184,19 @@ const AllProducts = () => {
               <span className="breadcrumb-item active">All</span>
             </nav>
           </div>
-          <button className="btn-create" onClick={() => router.push("/products/add")}>
-            <i className="fi fi-rr-plus"></i>
-            <span>Add Product</span>
-          </button>
+          <Button
+            icon={<i className="fi fi-rr-plus" />}
+            onClick={() => router.push("/products/add")}
+          >
+            Add Product
+          </Button>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-box" style={{ color: "#6366f1" }}></i>
+            <i className="fi fi-rr-box" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
             <h3>{total}</h3>
@@ -110,7 +205,7 @@ const AllProducts = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
-            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }}></i>
+            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
             <h3>{products.filter((p) => p.isActive).length}</h3>
@@ -119,7 +214,7 @@ const AllProducts = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fef3c7" }}>
-            <i className="fi fi-rr-exclamation" style={{ color: "#f59e0b" }}></i>
+            <i className="fi fi-rr-exclamation" style={{ color: "#f59e0b" }} />
           </div>
           <div className="stat-info">
             <h3>{products.filter((p) => p.stock === 0).length}</h3>
@@ -128,7 +223,6 @@ const AllProducts = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Products</h2>
@@ -141,159 +235,22 @@ const AllProducts = () => {
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 220 }}
             />
-            <button type="submit" className="btn btn-sm btn-outline-secondary">
-              <i className="fi fi-rr-search"></i>
-            </button>
+            <Button type="submit" variant="outline" size="sm">
+              <i className="fi fi-rr-search" />
+            </Button>
           </form>
         </div>
-
-        <div className="table-wrapper">
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Sold</th>
-                  <th>Active</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4 text-muted">
-                      No products found
-                    </td>
-                  </tr>
-                ) : (
-                  products.map((p) => (
-                    <tr key={p._id}>
-                      <td>
-                        {p.images?.[0] ? (
-                          <img
-                            src={getAssetUrl(p.images[0].url)}
-                            alt={p.title}
-                            style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 6,
-                              backgroundColor: "#f1f5f9",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }}></i>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        <span className="text-truncate d-inline-block" style={{ maxWidth: 200 }}>
-                          {p.title}
-                        </span>
-                      </td>
-                      <td>{p.category?.name || "—"}</td>
-                      <td>
-                        {p.discount > 0 ? (
-                          <>
-                            <span className="text-decoration-line-through text-muted me-1">
-                              ${p.price}
-                            </span>
-                            <strong>${(p.price * (1 - p.discount / 100)).toFixed(2)}</strong>
-                          </>
-                        ) : (
-                          <strong>${p.price}</strong>
-                        )}
-                      </td>
-                      <td>
-                        <span
-                          className={`active-badge ${p.stock > 0 ? "active" : "inactive"}`}
-                        >
-                          {p.stock}
-                        </span>
-                      </td>
-                      <td>{p.soldCount}</td>
-                      <td>
-                        <span className={`active-badge ${p.isActive ? "active" : "inactive"}`}>
-                          {p.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn delete-btn"
-                            title="Delete"
-                            disabled={deletingId === p._id}
-                            onClick={() => handleDelete(p._id, p.title)}
-                          >
-                            <i
-                              className={
-                                deletingId === p._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"
-                              }
-                            ></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="table-footer">
-            <div className="showing-info">
-              Page <strong>{page}</strong> of <strong>{totalPages}</strong> ({total} products)
-            </div>
-            <div className="pagination">
-              <button
-                className="page-btn"
-                disabled={page <= 1}
-                onClick={() => handlePageChange(page - 1)}
-              >
-                <i className="fi fi-rr-angle-left"></i>
-              </button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const start = Math.max(1, Math.min(page - 2, totalPages - 4));
-                const num = start + i;
-                return (
-                  <button
-                    key={num}
-                    className={`page-btn ${num === page ? "active" : ""}`}
-                    onClick={() => handlePageChange(num)}
-                  >
-                    {num}
-                  </button>
-                );
-              })}
-              <button
-                className="page-btn"
-                disabled={page >= totalPages}
-                onClick={() => handlePageChange(page + 1)}
-              >
-                <i className="fi fi-rr-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        )}
+        <Table columns={columns} data={products} loading={loading} emptyMessage="No products found" rowKey={(p) => p._id} />
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} total={total} />
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        itemName={deleteTarget?.title || ""}
+      />
     </div>
   );
 };

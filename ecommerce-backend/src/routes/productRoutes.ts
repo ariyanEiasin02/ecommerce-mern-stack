@@ -18,27 +18,30 @@ const router = Router();
 
 // Public
 router.get('/', getProducts);
-router.get('/:slug', getProduct);
 
-// Admin
-router.use(protect as any);
-router.use(authorize('superAdmin') as any);
-
-router.get('/admin/all', getAllProductsAdmin);
-router.get('/admin/:id', getProductById);
+// Admin routes (must be BEFORE /:slug to avoid route conflict)
+router.get('/admin/all', protect as any, authorize('superAdmin') as any, getAllProductsAdmin);
+router.get('/admin/:id', protect as any, authorize('superAdmin') as any, getProductById);
 router.post(
   '/',
+  protect as any,
+  authorize('superAdmin') as any,
   upload.array('images', 10),
   validate(createProductSchema),
   createProduct as any
 );
 router.put(
   '/:id',
+  protect as any,
+  authorize('superAdmin') as any,
   upload.array('images', 10),
   validate(updateProductSchema),
   updateProduct
 );
-router.delete('/:id', deleteProduct);
-router.post('/:id/images', upload.array('images', 10), uploadProductImages);
+router.delete('/:id', protect as any, authorize('superAdmin') as any, deleteProduct);
+router.post('/:id/images', protect as any, authorize('superAdmin') as any, upload.array('images', 10), uploadProductImages);
+
+// Public - slug route LAST to avoid catching /admin/* paths
+router.get('/:slug', getProduct);
 
 export default router;

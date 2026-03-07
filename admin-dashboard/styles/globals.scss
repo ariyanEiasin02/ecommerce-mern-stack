@@ -766,6 +766,12 @@ button {
 // Import Category Styles
 @import "./category";
 
+// Import Reusable Component Styles
+@import "./components";
+
+// Import Dashboard Styles
+@import "./dashboard";
+
 // Notification Bell Dropdown
 .notification-bell {
   position: relative;

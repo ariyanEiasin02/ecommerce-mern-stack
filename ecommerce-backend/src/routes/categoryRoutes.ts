@@ -16,24 +16,28 @@ const router = Router();
 
 // Public
 router.get('/', getCategories);
-router.get('/:slug', getCategory);
 
-// Admin
-router.use(protect as any);
-router.use(authorize('superAdmin') as any);
-router.get('/admin/all', getAllCategoriesAdmin);
+// Admin routes (must be BEFORE /:slug to avoid route conflict)
+router.get('/admin/all', protect as any, authorize('superAdmin') as any, getAllCategoriesAdmin);
 router.post(
   '/',
+  protect as any,
+  authorize('superAdmin') as any,
   upload.single('image'),
   validate(createCategorySchema),
   createCategory
 );
 router.put(
   '/:id',
+  protect as any,
+  authorize('superAdmin') as any,
   upload.single('image'),
   validate(updateCategorySchema),
   updateCategory
 );
-router.delete('/:id', deleteCategory);
+router.delete('/:id', protect as any, authorize('superAdmin') as any, deleteCategory);
+
+// Public - slug route LAST to avoid catching /admin/* paths
+router.get('/:slug', getCategory);
 
 export default router;

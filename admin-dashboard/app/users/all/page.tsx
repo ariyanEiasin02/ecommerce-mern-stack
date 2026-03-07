@@ -1,7 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { adminUserService } from "@/services/adminService";
 import { toast } from "react-toastify";
+import { Table, Pagination, ConfirmDeleteModal, Button } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface User {
   _id: string;
@@ -19,7 +21,8 @@ const UsersPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchUsers = async (p = page) => {
     try {
@@ -55,18 +58,19 @@ const UsersPage = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await adminUserService.delete(id);
-      setUsers((prev) => prev.filter((u) => u._id !== id));
+      await adminUserService.delete(deleteTarget._id);
+      setUsers((prev) => prev.filter((u) => u._id !== deleteTarget._id));
       setTotal((prev) => prev - 1);
-      toast.success(`User "${name}" deleted`);
+      toast.success(`User "${deleteTarget.name}" deleted`);
+      setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete user");
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
@@ -75,15 +79,93 @@ const UsersPage = () => {
     fetchUsers(newPage);
   };
 
+  const columns: TableColumn<User>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        label: "Name",
+        render: (u) => (
+          <div className="d-flex align-items-center gap-2">
+            <div
+              style={{
+                width: 36, height: 36, borderRadius: "50%",
+                backgroundColor: u.role === "superAdmin" ? "#e0e7ff" : "#f1f5f9",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontWeight: 600, fontSize: 14,
+                color: u.role === "superAdmin" ? "#4338ca" : "#64748b",
+              }}
+            >
+              {u.name?.charAt(0).toUpperCase()}
+            </div>
+            <span>{u.name}</span>
+          </div>
+        ),
+      },
+      { key: "email", label: "Email" },
+      {
+        key: "role",
+        label: "Role",
+        render: (u) => (
+          <span
+            className="active-badge"
+            style={u.role === "superAdmin" ? { backgroundColor: "#e0e7ff", color: "#3730a3" } : {}}
+          >
+            {u.role === "superAdmin" ? "Admin" : "User"}
+          </span>
+        ),
+      },
+      {
+        key: "status",
+        label: "Status",
+        render: (u) => (
+          <span className={`active-badge ${u.isBlocked ? "inactive" : "active"}`}>
+            {u.isBlocked ? "Blocked" : "Active"}
+          </span>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Joined",
+        render: (u) =>
+          new Date(u.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        className: "text-center",
+        render: (u) =>
+          u.role !== "superAdmin" ? (
+            <div className="action-buttons">
+              <button
+                className={`action-btn ${u.isBlocked ? "edit-btn" : "view-btn"}`}
+                title={u.isBlocked ? "Unblock" : "Block"}
+                disabled={togglingId === u._id}
+                onClick={() => handleToggleBlock(u._id)}
+              >
+                <i className={u.isBlocked ? "fi fi-rr-unlock" : "fi fi-rr-lock"} />
+              </button>
+              <button
+                className="action-btn delete-btn"
+                title="Delete"
+                onClick={() => setDeleteTarget(u)}
+              >
+                <i className="fi fi-rr-trash" />
+              </button>
+            </div>
+          ) : null,
+      },
+    ],
+    [togglingId]
+  );
+
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
@@ -93,11 +175,10 @@ const UsersPage = () => {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-users" style={{ color: "#6366f1" }}></i>
+            <i className="fi fi-rr-users" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
             <h3>{total}</h3>
@@ -106,7 +187,7 @@ const UsersPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
-            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }}></i>
+            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
             <h3>{users.filter((u) => !u.isBlocked).length}</h3>
@@ -115,7 +196,7 @@ const UsersPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fee2e2" }}>
-            <i className="fi fi-rr-ban" style={{ color: "#ef4444" }}></i>
+            <i className="fi fi-rr-ban" style={{ color: "#ef4444" }} />
           </div>
           <div className="stat-info">
             <h3>{users.filter((u) => u.isBlocked).length}</h3>
@@ -124,145 +205,21 @@ const UsersPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Users</h2>
         </div>
-
-        <div className="table-wrapper">
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4 text-muted">
-                      No users found
-                    </td>
-                  </tr>
-                ) : (
-                  users.map((u) => (
-                    <tr key={u._id}>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <div
-                            style={{
-                              width: 36,
-                              height: 36,
-                              borderRadius: "50%",
-                              backgroundColor: u.role === "superAdmin" ? "#e0e7ff" : "#f1f5f9",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontWeight: 600,
-                              fontSize: 14,
-                              color: u.role === "superAdmin" ? "#4338ca" : "#64748b",
-                            }}
-                          >
-                            {u.name?.charAt(0).toUpperCase()}
-                          </div>
-                          <span>{u.name}</span>
-                        </div>
-                      </td>
-                      <td>{u.email}</td>
-                      <td>
-                        <span
-                          className="active-badge"
-                          style={
-                            u.role === "superAdmin"
-                              ? { backgroundColor: "#e0e7ff", color: "#3730a3" }
-                              : {}
-                          }
-                        >
-                          {u.role === "superAdmin" ? "Admin" : "User"}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`active-badge ${u.isBlocked ? "inactive" : "active"}`}>
-                          {u.isBlocked ? "Blocked" : "Active"}
-                        </span>
-                      </td>
-                      <td>
-                        {new Date(u.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          {u.role !== "superAdmin" && (
-                            <>
-                              <button
-                                className={`action-btn ${u.isBlocked ? "edit-btn" : "view-btn"}`}
-                                title={u.isBlocked ? "Unblock" : "Block"}
-                                disabled={togglingId === u._id}
-                                onClick={() => handleToggleBlock(u._id)}
-                              >
-                                <i className={u.isBlocked ? "fi fi-rr-unlock" : "fi fi-rr-lock"}></i>
-                              </button>
-                              <button
-                                className="action-btn delete-btn"
-                                title="Delete"
-                                disabled={deletingId === u._id}
-                                onClick={() => handleDelete(u._id, u.name)}
-                              >
-                                <i className={deletingId === u._id ? "fi fi-rr-spinner" : "fi fi-rr-trash"}></i>
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="table-footer">
-            <div className="showing-info">
-              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-            </div>
-            <div className="pagination">
-              <button className="page-btn" disabled={page <= 1} onClick={() => handlePageChange(page - 1)}>
-                <i className="fi fi-rr-angle-left"></i>
-              </button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const start = Math.max(1, Math.min(page - 2, totalPages - 4));
-                const num = start + i;
-                return (
-                  <button key={num} className={`page-btn ${num === page ? "active" : ""}`} onClick={() => handlePageChange(num)}>
-                    {num}
-                  </button>
-                );
-              })}
-              <button className="page-btn" disabled={page >= totalPages} onClick={() => handlePageChange(page + 1)}>
-                <i className="fi fi-rr-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        )}
+        <Table columns={columns} data={users} loading={loading} emptyMessage="No users found" rowKey={(u) => u._id} />
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} total={total} />
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        itemName={deleteTarget?.name || ""}
+      />
     </div>
   );
 };

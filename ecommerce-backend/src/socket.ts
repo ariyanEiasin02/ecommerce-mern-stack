@@ -1,5 +1,6 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import jwt from 'jsonwebtoken';
 
 let io: Server;
 
@@ -12,6 +13,11 @@ const adminNotifications: {
   read: boolean;
   createdAt: Date;
 }[] = [];
+
+interface JwtPayload {
+  id: string;
+  role: string;
+}
 
 export const initializeSocket = (httpServer: HttpServer): Server => {
   io = new Server(httpServer, {
@@ -27,14 +33,23 @@ export const initializeSocket = (httpServer: HttpServer): Server => {
   io.on('connection', (socket: Socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
-    // Join room based on user role
-    socket.on('join', (data: { userId: string; role: string }) => {
+    // Join room based on user role - validate token before allowing admin access
+    socket.on('join', (data: { userId: string; role: string; token?: string }) => {
       socket.join(`user:${data.userId}`);
-      if (data.role === 'superAdmin') {
-        socket.join('admin');
-        // Send existing unread notifications
-        const unread = adminNotifications.filter((n) => !n.read);
-        socket.emit('notifications:initial', unread);
+      if (data.role === 'superAdmin' && data.token) {
+        try {
+          const jwtSecret = process.env.JWT_SECRET;
+          if (!jwtSecret) return;
+          const decoded = jwt.verify(data.token, jwtSecret) as JwtPayload;
+          if (decoded.role === 'superAdmin') {
+            socket.join('admin');
+            // Send existing unread notifications
+            const unread = adminNotifications.filter((n) => !n.read);
+            socket.emit('notifications:initial', unread);
+          }
+        } catch {
+          // Invalid token - don't join admin room
+        }
       }
     });
 
