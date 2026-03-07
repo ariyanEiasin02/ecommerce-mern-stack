@@ -37,8 +37,9 @@ export const getHomePageData = asyncHandler(
       bestSellingProducts,
       topRatedProducts,
     ] = await Promise.all([
-      // All active banners
+      // All active banners (select only fields we need)
       HeroBanner.find({ isActive: true })
+        .select('link image position sortOrder')
         .sort({ sortOrder: 1 })
         .lean(),
 
@@ -81,10 +82,16 @@ export const getHomePageData = asyncHandler(
         .lean(),
     ]);
 
-    // Split hero banners by position
-    const slider = heroBanners.filter((b: any) => b.position === 'slider');
-    const rightTop = heroBanners.find((b: any) => b.position === 'rightTop') || null;
-    const rightBottom = heroBanners.find((b: any) => b.position === 'rightBottom') || null;
+    // Split hero banners by position and expose only id, link and image
+    const slider = heroBanners
+      .filter((b: any) => b.position === 'slider')
+      .map((b: any) => ({ id: b._id, link: b.link, image: b.image }));
+
+    const _rightTop = heroBanners.find((b: any) => b.position === 'rightTop') || null;
+    const rightTop = _rightTop ? { id: _rightTop._id, link: _rightTop.link, image: _rightTop.image } : null;
+
+    const _rightBottom = heroBanners.find((b: any) => b.position === 'rightBottom') || null;
+    const rightBottom = _rightBottom ? { id: _rightBottom._id, link: _rightBottom.link, image: _rightBottom.image } : null;
 
     res.status(200).json({
       success: true,
