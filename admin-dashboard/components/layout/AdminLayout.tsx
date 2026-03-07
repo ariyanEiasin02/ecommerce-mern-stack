@@ -21,9 +21,22 @@ const AdminLayoutInner = ({
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Login page has no sidebar/header
+  // Login page has no sidebar/header — but still needs ToastContainer
   if (pathname === "/login") {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <ToastContainer
+          position="top-right"
+          autoClose={3500}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
+      </>
+    );
   }
 
   // Show loading while checking auth

@@ -284,16 +284,26 @@ export const updateProduct = asyncHandler(
       req.body.tags = JSON.parse(req.body.tags);
     }
 
-    // Handle new uploaded images
+    // Handle image updates: prefer kept images sent from the client (existingImages),
+    // fall back to the stored product images so nothing is lost by default.
+    const baseImages: { url: string; alt: string; isPrimary: boolean }[] =
+      req.body.existingImages
+        ? JSON.parse(req.body.existingImages)
+        : (product.images as { url: string; alt: string; isPrimary: boolean }[]);
+    delete req.body.existingImages; // remove helper field before saving
+
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       const newImages = req.files.map(
         (file: Express.Multer.File, index: number) => ({
           url: `/uploads/${file.filename}`,
           alt: req.body.title || product!.title,
-          isPrimary: product!.images.length === 0 && index === 0,
+          isPrimary: baseImages.length === 0 && index === 0,
         })
       );
-      req.body.images = [...(product.images || []), ...newImages];
+      req.body.images = [...baseImages, ...newImages];
+    } else {
+      // No new files — use whatever images the client wants to keep
+      req.body.images = baseImages;
     }
 
     // Whitelist allowed fields to prevent mass assignment

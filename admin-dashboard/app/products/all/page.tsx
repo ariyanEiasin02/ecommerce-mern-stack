@@ -155,6 +155,13 @@ const AllProducts = () => {
         render: (p) => (
           <div className="action-buttons">
             <button
+              className="action-btn edit-btn"
+              title="Edit"
+              onClick={() => router.push(`/products/edit/${p._id}`)}
+            >
+              <i className="fi fi-rr-edit" />
+            </button>
+            <button
               className="action-btn delete-btn"
               title="Delete"
               onClick={() => setDeleteTarget(p)}

@@ -42,12 +42,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <i className="fi fi-rr-user"></i>
               </div>
               <div className="profile-info">
-                <span className="user-name">{user?.name || 'Admin'}</span>
+                <span className="user-name">{user?.name || "Admin"}</span>
                 <span className="user-role">Administrator</span>
               </div>
               <button
                 onClick={logout}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                className="logout-btn"
                 aria-label="Logout"
                 title="Logout"
               >
