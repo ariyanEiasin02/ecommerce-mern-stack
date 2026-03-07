@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────
-// Dashboard Stats Row (3 top cards)
+// Dashboard Stats Row
 // ─────────────────────────────────────────
 .dashboard-stats-row {
   display: grid;
@@ -12,88 +12,101 @@
   }
 }
 
-.dashboard-stat-card {
+// ─────────────────────────────────────────
+// Stat Card  (.ds-card)
+// ─────────────────────────────────────────
+.ds-card {
   background: #fff;
   border-radius: 16px;
-  padding: 20px 24px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
   transition: box-shadow 0.25s, transform 0.25s;
 
   &:hover {
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.09);
     transform: translateY(-2px);
+  }
+
+  &__inner {
+    padding: 20px 20px 12px;
   }
 
   &__top {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
 
   &__icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 
-    i { font-size: 18px; color: #fff; }
+    i { font-size: 16px; }
 
-    &--green { background: #dcfce7; i { color: #16a34a; } }
-    &--orange { background: #ffedd5; i { color: #ea580c; } }
-    &--red { background: #ffe4e6; i { color: #dc2626; } }
+    &--amber { background: #fef3c7; i { color: #d97706; } }
+    &--red   { background: #fee2e2; i { color: #dc2626; } }
+    &--teal  { background: #d1fae5; i { color: #059669; } }
   }
 
-  &__title {
+  &__label {
+    flex: 1;
     font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+    font-weight: 500;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  &__body {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 16px;
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    i { font-size: 10px; }
+
+    &--up   { background: #f0fdf4; color: #16a34a; }
+    &--down { background: #fff1f2; color: #dc2626; }
   }
 
   &__value {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     color: #0f172a;
-    line-height: 1;
     letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 4px;
   }
 
-  &__sparkline {
-    flex-shrink: 0;
-    width: 120px;
-    height: 40px;
+  &__sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  &__spark {
+    height: 72px;
+    margin-top: 10px;
 
     svg {
       width: 100%;
       height: 100%;
+      display: block;
     }
-  }
-
-  &__footer {
-    margin-top: 12px;
-  }
-
-  &__change {
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-
-    i { font-size: 12px; }
-
-    &--up { color: #16a34a; }
-    &--down { color: #dc2626; }
   }
 }
 
@@ -125,18 +138,18 @@
 }
 
 // ─────────────────────────────────────────
-// Dashboard Card (shared)
+// Dashboard Card (shared white card)
 // ─────────────────────────────────────────
 .dashboard-card {
   background: #fff;
   border-radius: 16px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 
   &__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     padding: 20px 24px 0;
 
@@ -144,14 +157,15 @@
       font-size: 16px;
       font-weight: 700;
       color: #0f172a;
-      margin: 0;
+      margin: 0 0 2px;
     }
   }
 
   &__subtitle {
-    margin: 4px 0 0;
+    margin: 3px 0 0;
     font-size: 13px;
-    color: #64748b;
+    color: #94a3b8;
+    font-weight: 400;
   }
 
   &__menu {
@@ -166,6 +180,7 @@
     transition: background 0.15s;
     border: none;
     background: none;
+    flex-shrink: 0;
 
     &:hover {
       background: #f1f5f9;
@@ -177,12 +192,12 @@
 }
 
 // ─────────────────────────────────────────
-// Chart Card
+// Chart Legend
 // ─────────────────────────────────────────
 .dashboard-chart-legend {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -200,22 +215,28 @@
   height: 10px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .legend-filter {
   font-size: 13px;
-  color: #0f172a;
+  color: #374151;
   font-weight: 600;
   padding: 4px 12px;
-  background: #f1f5f9;
-  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
+// ─────────────────────────────────────────
+// Chart Area
+// ─────────────────────────────────────────
 .dashboard-chart-area {
   display: flex;
   gap: 8px;
-  padding: 20px 24px 16px;
-  min-height: 260px;
+  padding: 16px 24px 16px;
+  min-height: 256px;
 }
 
 .chart-y-labels {
@@ -224,10 +245,10 @@
   justify-content: space-between;
   font-size: 11px;
   color: #94a3b8;
-  width: 30px;
+  width: 28px;
   text-align: right;
-  padding: 0 4px;
   flex-shrink: 0;
+  padding-bottom: 28px; // align with x-label height
 }
 
 .chart-graph {
@@ -235,6 +256,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
 .chart-svg {
@@ -258,7 +280,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px 24px 8px;
 }
 
 .donut-svg {
@@ -272,68 +294,101 @@
   justify-content: center;
   gap: 20px;
   padding: 0 24px 20px;
+  flex-wrap: wrap;
 }
 
 // ─────────────────────────────────────────
-// Products Card Table
+// Products Table
 // ─────────────────────────────────────────
 .dashboard-products-card {
   .table-wrapper {
-    padding: 0;
-  }
-
-  .data-table {
-    margin: 0;
+    overflow-x: auto;
   }
 }
 
-.stock-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 11px;
+.ds-product-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr th {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f8fafc;
+    transition: background 0.15s;
+
+    &:hover { background: #fafbff; }
+    &:last-child { border-bottom: none; }
+  }
+
+  tbody tr td {
+    padding: 13px 16px;
+    font-size: 14px;
+    color: #374151;
+  }
+}
+
+.ds-product-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ds-product-code {
+  font-size: 13px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.ds-product-price {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ds-product-qty {
+  font-family: monospace;
+  color: #374151;
+}
+
+// Stock badges — text-only (matching reference image)
+.ds-stock-badge {
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
 
-  &.stock-in {
-    background: #dcfce7;
-    color: #15803d;
-  }
-
-  &.stock-low {
-    background: #fef3c7;
-    color: #a16207;
-  }
-
-  &.stock-out {
-    background: #fee2e2;
-    color: #b91c1c;
-  }
+  &--stock-in  { color: #2563eb; }
+  &--stock-low { color: #d97706; }
+  &--stock-out { color: #dc2626; }
 }
 
 // ─────────────────────────────────────────
 // Most Selling List
 // ─────────────────────────────────────────
 .selling-list {
-  padding: 8px 0;
+  padding: 8px 0 4px;
 }
 
 .selling-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 12px 24px;
   transition: background 0.15s;
 
-  &:hover {
-    background: #f8fafc;
-  }
+  &:hover { background: #f8fafc; }
 
   &__img {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
     background: #f1f5f9;
@@ -353,7 +408,7 @@
     justify-content: center;
     color: #94a3b8;
 
-    i { font-size: 20px; }
+    i { font-size: 18px; }
   }
 
   &__info {
@@ -379,9 +434,11 @@
   }
 
   &__price {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: #0f172a;
     flex-shrink: 0;
   }
 }
+
+
