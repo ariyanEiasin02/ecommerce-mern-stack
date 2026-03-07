@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.scss";
 import Navbar from "@/components/layout/Navbar";
-import MegaMenu from "@/components/layout/MegaMenu";
 import Footer from "@/components/layout/Footer";
 import Providers from "@/components/Providers";
 
@@ -76,7 +75,6 @@ export default function RootLayout({
       <body className={`${inter.variable}`}>
         <Providers>
           <Navbar />
-          <MegaMenu />
           {children}
           <Footer />
         </Providers>

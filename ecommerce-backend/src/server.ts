@@ -27,6 +27,8 @@ import orderRoutes from './routes/orderRoutes';
 import couponRoutes from './routes/couponRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import adminRoutes from './routes/adminRoutes';
+import homeRoutes from './routes/homeRoutes';
+import heroSliderRoutes from './routes/heroSliderRoutes';
 
 const app = express();
 const httpServer = createServer(app);
@@ -105,6 +107,8 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/uploads', express.static(path.resolve(uploadsDir)));
 
 // Routes
+app.use('/api/home', homeRoutes);
+app.use('/api/hero-slider', heroSliderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);

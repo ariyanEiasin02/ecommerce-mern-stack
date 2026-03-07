@@ -173,6 +173,39 @@ export const adminCouponService = {
   },
 };
 
+// ============ Hero Banner ============
+export const adminHeroBannerService = {
+  async getAll() {
+    const res = await adminAxios.get("/hero-slider/admin/all");
+    return res.data.data;
+  },
+
+  async getById(id: string) {
+    const res = await adminAxios.get(`/hero-slider/${id}`);
+    return res.data.data;
+  },
+
+  async create(data: FormData) {
+    const res = await adminAxios.post("/hero-slider", data, formDataConfig);
+    return res.data.data;
+  },
+
+  async update(id: string, data: FormData) {
+    const res = await adminAxios.put(`/hero-slider/${id}`, data, formDataConfig);
+    return res.data.data;
+  },
+
+  async toggleStatus(id: string) {
+    const res = await adminAxios.patch(`/hero-slider/${id}/status`);
+    return res.data.data;
+  },
+
+  async delete(id: string) {
+    const res = await adminAxios.delete(`/hero-slider/${id}`);
+    return res.data;
+  },
+};
+
 // ============ Dashboard ============
 export const adminDashboardService = {
   async getAnalytics() {

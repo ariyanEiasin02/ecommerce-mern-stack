@@ -100,6 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           <NavLink href="/users/all" icon="fi-rr-users" label="Users" />
           <NavLink href="/orders" icon="fi-rr-shopping-cart" label="Orders" />
           <NavLink href="/coupons" icon="fi-rr-ticket" label="Coupons" />
+          <NavLink href="/hero-slider" icon="fi-rr-picture" label="Hero Banners" />
         </nav>
       </div>
     </aside>
