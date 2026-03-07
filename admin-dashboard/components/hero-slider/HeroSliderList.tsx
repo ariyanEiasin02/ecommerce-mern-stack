@@ -165,32 +165,30 @@ const HeroBannerList = () => {
     }
   };
 
-  // ── Computed stats ─────────────────────────────────────────────────────────
-  const stats = useMemo(() => ({
-    total: banners.length,
-    active: banners.filter((b) => b.isActive).length,
-    slider: banners.filter((b) => b.position === "slider").length,
-    rightTop: banners.filter((b) => b.position === "rightTop").length,
-    rightBottom: banners.filter((b) => b.position === "rightBottom").length,
-  }), [banners]);
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
   // ── Table columns ──────────────────────────────────────────────────────────
   const columns: TableColumn<HeroBanner>[] = useMemo(
     () => [
       {
-        key: "sortOrder",
-        label: "#",
-        render: (b) => <span className="order-badge">{b.sortOrder}</span>,
-      },
-      {
         key: "image",
         label: "Image",
         render: (b) =>
           b.image ? (
-            <img src={getAssetUrl(b.image)} alt="Banner" className="slider-thumb" />
+            <img
+              src={getAssetUrl(b.image)}
+              alt="Banner"
+              style={{ width: 80, height: 48, objectFit: "cover", borderRadius: 6 }}
+            />
           ) : (
-            <div className="slider-thumb-placeholder">
-              <i className="fi fi-rr-picture" />
+            <div
+              style={{
+                width: 80, height: 48, borderRadius: 6, backgroundColor: "#f1f5f9",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }} />
             </div>
           ),
       },
@@ -198,21 +196,26 @@ const HeroBannerList = () => {
         key: "position",
         label: "Position",
         render: (b) => (
-          <span className={`position-badge position-badge--${b.position}`}>
+          <span className={`active-badge position-${b.position}`}>
             {positionLabels[b.position]}
           </span>
         ),
+      },
+      {
+        key: "sortOrder",
+        label: "Order",
+        render: (b) => <span style={{ fontWeight: 600, color: "#475569" }}>{b.sortOrder}</span>,
       },
       {
         key: "link",
         label: "Link",
         render: (b) =>
           b.link ? (
-            <span className="btn-link-text" title={b.link}>
+            <span className="slug-text" title={b.link} style={{ maxWidth: 180, display: "inline-block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {b.link}
             </span>
           ) : (
-            <span className="empty-cell">—</span>
+            <span className="description-text">—</span>
           ),
       },
       {
@@ -220,20 +223,27 @@ const HeroBannerList = () => {
         label: "Status",
         render: (b) => (
           <button
-            className={`status-toggle-btn ${b.isActive ? "status-active" : "status-inactive"}`}
+            className={`active-badge ${b.isActive ? "active" : "inactive"}`}
             onClick={() => handleToggleStatus(b)}
             disabled={togglingId === b._id}
             title={b.isActive ? "Click to deactivate" : "Click to activate"}
+            style={{ cursor: "pointer", border: "none" }}
           >
             {togglingId === b._id ? (
               <span className="ui-btn__spinner" style={{ width: 13, height: 13 }} />
             ) : (
-              <>
-                <span className="status-dot" />
-                {b.isActive ? "Active" : "Inactive"}
-              </>
+              b.isActive ? "Active" : "Inactive"
             )}
           </button>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Created",
+        render: (b) => (
+          <div className="date-cell">
+            <span className="date">{formatDate(b.createdAt)}</span>
+          </div>
         ),
       },
       {
@@ -265,14 +275,14 @@ const HeroBannerList = () => {
 
   if (error) {
     return (
-      <div className="hero-slider-page">
+      <div className="category-page">
         <div className="alert alert-danger m-4">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="hero-slider-page">
+    <div className="category-page">
       {/* ── Page Header ── */}
       <div className="page-header">
         <div className="header-content">
@@ -295,11 +305,11 @@ const HeroBannerList = () => {
       {/* ── Stats ── */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: "#f0f9ff" }}>
-            <i className="fi fi-rr-layers" style={{ color: "#0ea5e9" }} />
+          <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
+            <i className="fi fi-rr-layers" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
-            <h3>{stats.total}</h3>
+            <h3>{banners.length}</h3>
             <p>Total Banners</p>
           </div>
         </div>
@@ -308,38 +318,34 @@ const HeroBannerList = () => {
             <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
-            <h3>{stats.active}</h3>
+            <h3>{banners.filter((b) => b.isActive).length}</h3>
             <p>Active</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: "#fef7cd" }}>
-            <i className="fi fi-rr-picture" style={{ color: "#eab308" }} />
+          <div className="stat-icon" style={{ backgroundColor: "#fee2e2" }}>
+            <i className="fi fi-rr-cross-circle" style={{ color: "#ef4444" }} />
           </div>
           <div className="stat-info">
-            <h3>{stats.slider}</h3>
-            <p>Slider</p>
+            <h3>{banners.filter((b) => !b.isActive).length}</h3>
+            <p>Inactive</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: "#f3e8ff" }}>
-            <i className="fi fi-rr-apps" style={{ color: "#a855f7" }} />
+          <div className="stat-icon" style={{ backgroundColor: "#fef3c7" }}>
+            <i className="fi fi-rr-picture" style={{ color: "#f59e0b" }} />
           </div>
           <div className="stat-info">
-            <h3>{stats.rightTop + stats.rightBottom}</h3>
-            <p>Side Banners</p>
+            <h3>{banners.filter((b) => b.position === "slider").length}</h3>
+            <p>Slider Banners</p>
           </div>
         </div>
       </div>
 
       {/* ── Table ── */}
-      <div className="content-card">
-        <div className="card-header">
-          <h3 className="card-title">
-            <i className="fi fi-rr-picture" />
-            Hero Banners
-          </h3>
-          <span className="total-count">{banners.length} banners</span>
+      <div className="table-container">
+        <div className="table-header">
+          <h2>All Hero Banners</h2>
         </div>
         <Table
           columns={columns}
@@ -348,6 +354,11 @@ const HeroBannerList = () => {
           rowKey={(b) => b._id}
           emptyMessage="No banners found. Click 'Add Banner' to create the first one."
         />
+        <div className="table-footer">
+          <div className="showing-info">
+            Showing <strong>{banners.length}</strong> banners
+          </div>
+        </div>
       </div>
 
       {/* ── Create / Edit Modal ── */}
@@ -357,21 +368,20 @@ const HeroBannerList = () => {
         title={editTarget ? "Edit Banner" : "Add New Banner"}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="slider-form">
+        <form onSubmit={handleSubmit} className="banner-form">
           {/* Image Upload */}
-          <div className="slider-images-row">
+          <div className="banner-upload-area">
             <div
-              className="slider-image-upload"
+              className="banner-upload-zone"
               onClick={() => imageRef.current?.click()}
-              title="Click to upload banner image"
             >
               {imagePreview ? (
-                <img src={imagePreview} alt="Banner preview" className="upload-preview" />
+                <img src={imagePreview} alt="Banner preview" className="banner-upload-preview" />
               ) : (
-                <div className="upload-placeholder">
-                  <i className="fi fi-rr-picture" />
-                  <span>Banner Image</span>
-                  <small>Required · Click to upload</small>
+                <div className="banner-upload-placeholder">
+                  <i className="fi fi-rr-cloud-upload" />
+                  <span>Click to upload banner image</span>
+                  <small>PNG, JPG, WEBP up to 5MB</small>
                 </div>
               )}
               <input
@@ -381,68 +391,72 @@ const HeroBannerList = () => {
                 style={{ display: "none" }}
                 onChange={handleImageChange}
               />
-              <div className="upload-overlay">
-                <i className="fi fi-rr-camera" />
-                <span>Change</span>
-              </div>
+              {imagePreview && (
+                <div className="banner-upload-change">
+                  <i className="fi fi-rr-camera" />
+                  <span>Change Image</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Form Fields */}
-          <div className="slider-form-grid">
-            <div className="slider-form-group">
-              <label className="slider-form-label">
-                Position <span className="required">*</span>
-              </label>
-              <select
-                className="slider-form-control"
-                value={formData.position}
-                onChange={(e) =>
-                  setFormData({ ...formData, position: e.target.value as any })
-                }
-              >
-                <option value="slider">Slider (Main Carousel)</option>
-                <option value="rightTop">Right Top Banner</option>
-                <option value="rightBottom">Right Bottom Banner</option>
-              </select>
+          <div className="banner-form-fields">
+            <div className="banner-form-row">
+              <div className="banner-form-group">
+                <label>
+                  Position <span className="required">*</span>
+                </label>
+                <select
+                  className="form-input"
+                  value={formData.position}
+                  onChange={(e) =>
+                    setFormData({ ...formData, position: e.target.value as any })
+                  }
+                >
+                  <option value="slider">Slider (Main Carousel)</option>
+                  <option value="rightTop">Right Top Banner</option>
+                  <option value="rightBottom">Right Bottom Banner</option>
+                </select>
+              </div>
+
+              {formData.position === "slider" && (
+                <div className="banner-form-group">
+                  <label>Sort Order</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    min={0}
+                    value={formData.sortOrder}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sortOrder: Number(e.target.value) })
+                    }
+                  />
+                </div>
+              )}
             </div>
 
-            {formData.position === "slider" && (
-              <div className="slider-form-group">
-                <label className="slider-form-label">Sort Order</label>
-                <input
-                  type="number"
-                  className="slider-form-control"
-                  min={0}
-                  value={formData.sortOrder}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sortOrder: Number(e.target.value) })
-                  }
-                />
-              </div>
-            )}
-
-            <div className="slider-form-group slider-form-group--full">
-              <label className="slider-form-label">Link URL</label>
+            <div className="banner-form-group">
+              <label>Link URL</label>
               <input
                 type="text"
-                className="slider-form-control"
+                className="form-input"
                 placeholder="e.g. /all-products or /category/summer-sale"
                 value={formData.link}
                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
               />
             </div>
 
-            <div className="slider-form-group slider-form-group--switch">
-              <label className="slider-form-label">Status</label>
-              <label className="slider-toggle-switch">
+            <div className="banner-form-group">
+              <label>Status</label>
+              <label className="banner-toggle">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                 />
-                <span className="slider-toggle-track" />
-                <span className="slider-toggle-label">
+                <span className="banner-toggle-track" />
+                <span className="banner-toggle-label">
                   {formData.isActive ? "Active" : "Inactive"}
                 </span>
               </label>
@@ -451,7 +465,7 @@ const HeroBannerList = () => {
 
           {/* Position hint */}
           {formData.position !== "slider" && (
-            <div className="position-hint">
+            <div className="banner-hint">
               <i className="fi fi-rr-info" />
               <span>
                 Only one active banner allowed for {positionLabels[formData.position]}. 
@@ -461,7 +475,7 @@ const HeroBannerList = () => {
           )}
 
           {/* Actions */}
-          <div className="slider-form-actions">
+          <div className="banner-form-actions">
             <Button type="button" variant="outline" onClick={closeModal} disabled={submitting}>
               Cancel
             </Button>
