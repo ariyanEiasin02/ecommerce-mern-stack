@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/Product';
+import Category from '../models/Category';
 import slugify from 'slugify';
 import { AppError } from '../utils/AppError';
 import asyncHandler from '../utils/asyncHandler';
@@ -10,89 +12,137 @@ import { AuthRequest } from '../types';
 // @access  Public
 export const getProducts = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
-    const skip = (page - 1) * limit;
+    const page  = Math.max(1, parseInt(req.query.page  as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const skip  = (page - 1) * limit;
 
-    // Build filter object
+    // ── Build filter ────────────────────────────────────────────────────
     const filter: Record<string, unknown> = { isActive: true };
 
-    // Category filter
-    if (req.query.category) {
-      filter.category = req.query.category;
+    // Category + Subcategory (resolve slugs → ObjectIds)
+    if (req.query.subcategory) {
+      // Exact subcategory slug match
+      const sub = await Category.findOne({
+        slug: req.query.subcategory as string,
+        isActive: true,
+      }).lean();
+      // Use impossible ObjectId when slug not found so result set is empty
+      filter.category = sub ? sub._id : new mongoose.Types.ObjectId();
+    } else if (req.query.category) {
+      // Parent category + all its direct children
+      const parent = await Category.findOne({
+        slug: req.query.category as string,
+        isActive: true,
+      }).lean();
+      if (parent) {
+        const children = await Category.find({
+          parentCategory: parent._id,
+          isActive: true,
+        })
+          .select('_id')
+          .lean();
+        filter.category = { $in: [parent._id, ...children.map((c) => c._id)] };
+      } else {
+        filter.category = new mongoose.Types.ObjectId(); // no match → empty
+      }
     }
 
-    // Price range filter
+    // Price range (slider support)
     if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {};
-      if (req.query.minPrice) {
-        (filter.price as Record<string, unknown>).$gte = parseFloat(
-          req.query.minPrice as string
-        );
-      }
-      if (req.query.maxPrice) {
-        (filter.price as Record<string, unknown>).$lte = parseFloat(
-          req.query.maxPrice as string
-        );
-      }
+      const priceFilter: Record<string, number> = {};
+      if (req.query.minPrice) priceFilter.$gte = parseFloat(req.query.minPrice as string);
+      if (req.query.maxPrice) priceFilter.$lte = parseFloat(req.query.maxPrice as string);
+      filter.price = priceFilter;
     }
 
     // Brand filter
     if (req.query.brand) {
-      filter.brand = { $regex: req.query.brand, $options: 'i' };
+      filter.brand = { $regex: req.query.brand as string, $options: 'i' };
     }
 
-    // Rating filter
+    // Rating filter (≥ N stars)
     if (req.query.rating) {
-      filter.ratings = { $gte: parseFloat(req.query.rating as string) };
-    }
-
-    // Text search
-    if (req.query.search) {
-      filter.$text = { $search: req.query.search as string };
-    }
-
-    // Build sort object
-    let sortObj: Record<string, 1 | -1> = { createdAt: -1 };
-    const sortBy = req.query.sort as string;
-    const order = req.query.order === 'asc' ? 1 : -1;
-
-    if (sortBy) {
-      switch (sortBy) {
-        case 'price':
-          sortObj = { price: order };
-          break;
-        case 'popularity':
-          sortObj = { soldCount: -1 };
-          break;
-        case 'rating':
-          sortObj = { ratings: -1 };
-          break;
-        case 'newest':
-          sortObj = { createdAt: -1 };
-          break;
-        default:
-          sortObj = { createdAt: -1 };
+      const minRating = parseFloat(req.query.rating as string);
+      if (minRating >= 1 && minRating <= 5) {
+        filter.ratings = { $gte: minRating };
       }
     }
 
+    // Featured filter
+    if (req.query.isFeatured === 'true') {
+      filter.isFeatured = true;
+    }
+
+    // Full-text search by product name / tags / description
+    const searchQuery = (req.query.search as string)?.trim();
+    if (searchQuery) {
+      filter.$text = { $search: searchQuery };
+    }
+
+    // ── Build sort ──────────────────────────────────────────────────────
+    const buildSort = (s: string): Record<string, 1 | -1> => {
+      switch (s) {
+        case 'price':
+        case 'price-low':
+          return { price: 1 };
+        case '-price':
+        case 'price-high':
+          return { price: -1 };
+        case '-soldCount':
+        case 'popularity':
+          return { soldCount: -1 };
+        case '-ratings':
+        case 'rating':
+          return { ratings: -1 };
+        case 'createdAt':
+          return { createdAt: 1 };
+        case '-createdAt':
+        case 'newest':
+        case 'latest':
+        default:
+          return { createdAt: -1 };
+      }
+    };
+
+    // When a text search is active, rank by relevance score first
+    const sortObj: Record<string, unknown> = searchQuery
+      ? { score: { $meta: 'textScore' } }
+      : buildSort((req.query.sort as string) || '-createdAt');
+
+    // Projection: include text-score only during search
+    const projection: Record<string, unknown> = searchQuery
+      ? { score: { $meta: 'textScore' } }
+      : {};
+
+    // ── Query ───────────────────────────────────────────────────────────
     const [products, total] = await Promise.all([
-      Product.find(filter)
+      Product.find(filter, projection)
         .populate('category', 'name slug')
-        .sort(sortObj)
+        .sort(sortObj as any)
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Product.countDocuments(filter),
     ]);
+
+    const totalPages = Math.ceil(total / limit);
 
     res.status(200).json({
       success: true,
       data: products,
+      // kept for backward compatibility with existing frontend
       pagination: {
-        total,
         page,
         limit,
-        pages: Math.ceil(total / limit),
+        total,
+        pages: totalPages,
+      },
+      // new meta format as per API spec
+      meta: {
+        page,
+        limit,
+        totalProducts: total,
+        totalPages,
       },
     });
   }

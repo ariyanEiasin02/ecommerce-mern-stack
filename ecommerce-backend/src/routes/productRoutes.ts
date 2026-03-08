@@ -11,13 +11,13 @@ import {
 } from '../controllers/productController';
 import { protect, authorize } from '../middleware/auth';
 import { validate } from '../middleware/validate';
-import { createProductSchema, updateProductSchema } from '../validators';
+import { createProductSchema, updateProductSchema, getProductsQuerySchema } from '../validators';
 import upload from '../middleware/upload';
 
 const router = Router();
 
 // Public
-router.get('/', getProducts);
+router.get('/', validate(getProductsQuerySchema), getProducts);
 
 // Admin routes (must be BEFORE /:slug to avoid route conflict)
 router.get('/admin/all', protect as any, authorize('superAdmin') as any, getAllProductsAdmin);

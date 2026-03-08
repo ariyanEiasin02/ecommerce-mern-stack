@@ -68,6 +68,32 @@ export const updateCategorySchema = z.object({
 });
 
 // Product Validators
+export const getProductsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    sort: z
+      .enum([
+        '-createdAt', 'createdAt', 'newest', 'latest',
+        'price', '-price', 'price-low', 'price-high',
+        '-soldCount', 'popularity',
+        '-ratings', 'rating',
+      ])
+      .optional(),
+    category: z.string().max(100).optional(),
+    subcategory: z.string().max(100).optional(),
+    brand: z.string().max(100).optional(),
+    minPrice: z.coerce.number().min(0).optional(),
+    maxPrice: z.coerce.number().min(0).optional(),
+    rating: z.coerce.number().min(1).max(5).optional(),
+    search: z.string().max(200).optional(),
+    isFeatured: z.enum(['true', 'false']).optional(),
+  }).refine(
+    (q) => q.maxPrice === undefined || q.minPrice === undefined || q.maxPrice >= q.minPrice,
+    { message: 'maxPrice must be greater than or equal to minPrice', path: ['maxPrice'] }
+  ),
+});
+
 export const createProductSchema = z.object({
   body: z.object({
     title: z

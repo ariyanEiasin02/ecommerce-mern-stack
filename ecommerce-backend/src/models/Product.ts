@@ -36,6 +36,7 @@ export interface IProduct extends Document {
     estimatedDays: number;
   };
   isActive: boolean;
+  isFeatured: boolean;
   soldCount: number;
   tags: string[];
   createdAt: Date;
@@ -137,6 +138,10 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       default: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
     soldCount: {
       type: Number,
       default: 0,
@@ -156,6 +161,7 @@ productSchema.index({ price: 1 });
 productSchema.index({ ratings: -1 });
 productSchema.index({ createdAt: -1 });
 productSchema.index({ soldCount: -1 });
+productSchema.index({ isFeatured: 1 });
 
 // Virtual for discounted price
 productSchema.virtual('discountedPrice').get(function () {
