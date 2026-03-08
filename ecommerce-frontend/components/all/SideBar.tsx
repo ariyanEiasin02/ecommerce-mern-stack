@@ -1,6 +1,24 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { categoryService, ApiCategory } from "@/services/categoryService";
+
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  parentCategory?: string | null;
+}
+
+const MOCK_CATEGORIES: Category[] = [
+  { _id: "1", name: "Electronics", slug: "electronics" },
+  { _id: "2", name: "Headphones", slug: "headphones", parentCategory: "1" },
+  { _id: "3", name: "Smart Watches", slug: "smart-watches", parentCategory: "1" },
+  { _id: "4", name: "Fashion", slug: "fashion" },
+  { _id: "5", name: "Men", slug: "men", parentCategory: "4" },
+  { _id: "6", name: "Women", slug: "women", parentCategory: "4" },
+  { _id: "7", name: "Footwear", slug: "footwear" },
+  { _id: "8", name: "Sneakers", slug: "sneakers", parentCategory: "7" },
+  { _id: "9", name: "Bags", slug: "bags" },
+];
 
 interface SideBarProps {
   onFilterChange?: (filters: {
@@ -19,14 +37,7 @@ const SideBar: React.FC<SideBarProps> = ({ onFilterChange, initialCategory }) =>
   );
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-
-  useEffect(() => {
-    categoryService
-      .getCategories()
-      .then((res) => setCategories(res))
-      .catch(() => setCategories([]));
-  }, []);
+  const categories = MOCK_CATEGORIES;
 
   useEffect(() => {
     onFilterChange?.({
@@ -58,7 +69,6 @@ const SideBar: React.FC<SideBarProps> = ({ onFilterChange, initialCategory }) =>
     setPriceRange([0, 1000]);
   };
 
-  // Group parent categories with their children
   const parentCategories = categories.filter((c) => !c.parentCategory);
 
   return (
