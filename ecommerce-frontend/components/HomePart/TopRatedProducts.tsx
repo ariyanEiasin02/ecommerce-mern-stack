@@ -37,6 +37,8 @@ const TopRatedProducts = ({ products }: TopRatedProductsProps) => {
                 discount={product.discount}
                 images={resolveImages(product.images)}
                 isTrending={product.isTrending}
+               sold={product?.sold}
+                total={product?.stock}
               />
             </div>
           ))}

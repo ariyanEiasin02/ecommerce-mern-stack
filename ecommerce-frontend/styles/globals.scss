@@ -696,6 +696,8 @@ a{
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  display: flex;
+  flex-direction: column;
   @include transition(all);
 
   .product-image-wrapper {
@@ -857,7 +859,14 @@ a{
   .product-details {
     padding: 16px 12px;
     text-align: left;
-    
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    &__spacer {
+      flex-grow: 1;
+    }
+
     .product-name {
       font-size: 16px;
       font-weight: $font-weight-medium;

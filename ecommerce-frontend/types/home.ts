@@ -26,6 +26,8 @@ export interface ProductItem {
   discount?: number;
   images: string[];
   isTrending?: boolean;
+  sold?: number;
+  stock?: number;
 }
 
 export interface HomeData {

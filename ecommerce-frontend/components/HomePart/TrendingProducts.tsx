@@ -37,6 +37,8 @@ const TrendingProducts = ({ products }: TrendingProductsProps) => {
                 discount={product.discount}
                 images={resolveImages(product.images)}
                 isTrending={product.isTrending ?? true}
+               sold={product?.sold}
+                total={product?.stock}
               />
             </div>
           ))}

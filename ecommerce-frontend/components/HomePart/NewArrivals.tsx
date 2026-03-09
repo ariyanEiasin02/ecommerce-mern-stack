@@ -22,7 +22,8 @@ interface NewArrivalsProps {
 const NewArrivals = ({ products }: NewArrivalsProps) => {
   const displayProducts =
     products && products.length > 0 ? products : [];
-
+  console.log(products,"25");
+  
   return (
     <section className="section-header">
       <div className="container">
@@ -38,6 +39,8 @@ const NewArrivals = ({ products }: NewArrivalsProps) => {
                 discount={product.discount}
                 images={resolveImages(product.images)}
                 isTrending={product.isTrending}
+                sold={product?.sold}
+                total={product?.stock}
               />
             </div>
           ))}
