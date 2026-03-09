@@ -3,11 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 
 const LoginPage = () => {
   const router = useRouter();
-  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,17 +16,8 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      await login(form.email, form.password);
-      router.push('/');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Invalid email or password');
-    } finally {
-      setLoading(false);
-    }
+    console.log("ok");
+    
   };
 
   return (

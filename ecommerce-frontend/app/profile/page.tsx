@@ -2,91 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
-import { orderService } from '@/services/orderService';
-import { authService } from '@/services/authService';
 import Breadcrumb from '@/components/common/Breadcrumb';
 
 const ProfilePage = () => {
-  const { user, updateUser, logout } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'password'>('profile');
   const [profileForm, setProfileForm] = useState({ name: '', email: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [msg, setMsg] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setProfileForm({ name: user.name || '', email: user.email || '' });
-    }
-  }, [user]);
+const handleProfileUpdate = async (e: React.FormEvent) => {
+  console.log("ok");
+}
+  
 
-  useEffect(() => {
-    if (user && activeTab === 'orders') {
-      orderService.getMyOrders()
-        .then(setOrders)
-        .catch(() => setOrders([]));
-    }
-  }, [user, activeTab]);
-
-  if (!user) {
-    return (
-      <div className="container py-5 text-center">
-        <h3>Please login to view your profile</h3>
-        <Link href="/login" className="btn btn-primary mt-3">Sign In</Link>
-      </div>
-    );
-  }
-
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setMsg('');
-    try {
-      const updated = await authService.updateProfile(profileForm);
-      updateUser(updated);
-      setMsg('Profile updated successfully!');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    setMsg('');
-    try {
-      await authService.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
-      setMsg('Password changed successfully!');
-      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to change password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const statusClass = (status: string) => {
-    const map: Record<string, string> = {
-      pending: 'order-item__status--pending',
-      processing: 'order-item__status--processing',
-      shipped: 'order-item__status--shipped',
-      delivered: 'order-item__status--delivered',
-      cancelled: 'order-item__status--cancelled',
-    };
-    return map[status] || '';
-  };
-
+const handlePasswordChange = async (e: React.FormEvent) => {
+  e.preventDefault();
+  console.log("okk");
+};
+  
   return (
     <section className="profile-section">
       <div className="container">
@@ -97,11 +30,11 @@ const ProfilePage = () => {
             <div className="profile-card">
               <div className="profile-card__header">
                 <div className="profile-card__avatar">
-                  {user.name?.charAt(0).toUpperCase()}
+                  <i className="fi fi-rr-user"></i>
                 </div>
                 <div>
-                  <div className="profile-card__name">{user.name}</div>
-                  <div className="profile-card__email">{user.email}</div>
+                  <div className="profile-card__name">{"John Doe"}</div>
+                  <div className="profile-card__email">{"john.doe@example.com"}</div>
                 </div>
               </div>
               <ul className="list-group list-group-flush">
@@ -126,7 +59,7 @@ const ProfilePage = () => {
                 >
                   <i className="fi fi-rr-lock me-2"></i> Change Password
                 </li>
-                <li className="list-group-item text-danger" onClick={logout} style={{ cursor: 'pointer' }}>
+                <li className="list-group-item text-danger" style={{ cursor: 'pointer' }}>
                   <i className="fi fi-rr-sign-out-alt me-2"></i> Logout
                 </li>
               </ul>
@@ -134,8 +67,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="col-lg-9">
-            {msg && <div className="alert alert-success py-2">{msg}</div>}
-            {error && <div className="alert alert-danger py-2">{error}</div>}
+          
 
             {activeTab === 'profile' && (
               <div className="profile-card">
@@ -163,8 +95,7 @@ const ProfilePage = () => {
                       />
                     </div>
                   </div>
-                  <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
-                    {loading ? <span className="spinner-border spinner-border-sm me-2" /> : null}
+                  <button type="submit" className="btn btn-primary mt-3">
                     Save Changes
                   </button>
                 </form>
@@ -184,7 +115,7 @@ const ProfilePage = () => {
                     <div className="order-item" key={order._id}>
                       <div className="order-item__header">
                         <span className="order-item__id">#{order._id.slice(-8).toUpperCase()}</span>
-                        <span className={`order-item__status ${statusClass(order.status)}`}>
+                        <span className={`order-item__status`}>
                           {order.status}
                         </span>
                       </div>
@@ -238,8 +169,7 @@ const ProfilePage = () => {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? <span className="spinner-border spinner-border-sm me-2" /> : null}
+                  <button type="submit" className="btn btn-primary">
                     Update Password
                   </button>
                 </form>

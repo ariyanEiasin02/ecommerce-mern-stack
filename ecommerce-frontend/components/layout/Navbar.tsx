@@ -13,9 +13,6 @@ import {
   FaHome,
   FaStore,
 } from "react-icons/fa";
-import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
 
 const Navbar: React.FC = () => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -23,9 +20,6 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const { itemCount } = useCart();
-  const { count: wishlistCount } = useWishlist();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,18 +58,17 @@ const Navbar: React.FC = () => {
             <Link href="/wishlist" className="nav-icon-link">
               <FaHeart />
               <span className="icon-label">Wishlist</span>
-              {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+             
             </Link>
 
             <Link href="/cart" className="nav-icon-link">
               <FaShoppingCart />
               <span className="icon-label">Cart</span>
-              {itemCount > 0 && <span className="badge">{itemCount}</span>}
             </Link>
 
-            <Link href={isAuthenticated ? "/profile" : "/login"} className="nav-icon-link">
+            <Link href={"/login"} className="nav-icon-link">
               <FaUser />
-              <span className="icon-label">{isAuthenticated ? "Account" : "Login"}</span>
+              <span className="icon-label">Login</span>
             </Link>
           </div>
 
@@ -135,7 +128,6 @@ const Navbar: React.FC = () => {
         <Link href="/cart" className="bottom-nav-item">
           <FaShoppingCart />
           <span>Cart</span>
-          {itemCount > 0 && <span className="bottom-badge">{itemCount}</span>}
         </Link>
 
         <Link href="/wishlist" className="bottom-nav-item">
