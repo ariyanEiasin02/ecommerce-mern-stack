@@ -1,71 +1,169 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { adminCategoryService, getAssetUrl } from "@/services/adminService";
+import { toast } from "react-toastify";
+import { Table, Button, ConfirmDeleteModal } from "@/components/ui";
+import type { TableColumn } from "@/components/ui";
 
 interface Category {
   _id: string;
   name: string;
   slug: string;
   description?: string;
-  isActive:  boolean ;
-  status: "waiting" | "rejected" | "approved";
+  image?: string;
+  isActive: boolean;
+  parentCategory?: { _id: string; name: string } | null;
   createdAt: string;
 }
 
-const CategoryList = ({ categories }: { categories: Category[] }) => {
+const CategoryList = () => {
   const router = useRouter();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const handleStatusChange = (
-    categoryId: string,
-    newStatus: "waiting" | "rejected" | "approved",
-  ) => {
-    const updatedCategories = categories.map((category) => {
-      if (category._id === categoryId) {
-        return { ...category, status: newStatus };
-      }
-      return category;
-    });
-    // Update the categories state with the new status
-    console.log("Updated Categories:", updatedCategories);
-    setOpenDropdown(null);
-  };
-
-  const toggleDropdown = (categoryId: string) => {
-    setOpenDropdown(openDropdown === categoryId ? null : categoryId);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "success";
-      case "rejected":
-        return "danger";
-      case "waiting":
-        return "warning";
-      default:
-        return "secondary";
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await adminCategoryService.getAll();
+      setCategories(data);
+    } catch {
+      setError("Failed to load categories");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await adminCategoryService.delete(deleteTarget._id);
+      setCategories((prev) => prev.filter((c) => c._id !== deleteTarget._id));
+      toast.success(`"${deleteTarget.name}" deleted successfully`);
+      setDeleteTarget(null);
+    } catch {
+      toast.error("Failed to delete category");
+    } finally {
+      setDeleting(false);
+    }
   };
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+
+  const columns: TableColumn<Category>[] = useMemo(
+    () => [
+      {
+        key: "image",
+        label: "Image",
+        render: (cat) =>
+          cat.image ? (
+            <img
+              src={getAssetUrl(cat.image)}
+              alt={cat.name}
+              style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 40, height: 40, borderRadius: 6, backgroundColor: "#f1f5f9",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <i className="fi fi-rr-picture" style={{ color: "#94a3b8" }} />
+            </div>
+          ),
+      },
+      {
+        key: "name",
+        label: "Category Name",
+        render: (cat) => (
+          <div className="category-name">
+            <span>{cat.name}</span>
+          </div>
+        ),
+      },
+      {
+        key: "slug",
+        label: "Slug",
+        render: (cat) => <span className="slug-text">{cat.slug}</span>,
+      },
+      {
+        key: "parent",
+        label: "Parent",
+        render: (cat) => (
+          <span className="description-text">{cat.parentCategory?.name || "—"}</span>
+        ),
+      },
+      {
+        key: "isActive",
+        label: "Active",
+        render: (cat) => (
+          <span className={`active-badge ${cat.isActive ? "active" : "inactive"}`}>
+            {cat.isActive ? "Active" : "Inactive"}
+          </span>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Created Date",
+        render: (cat) => (
+          <div className="date-cell">
+            <span className="date">{formatDate(cat.createdAt)}</span>
+          </div>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        className: "text-center",
+        render: (cat) => (
+          <div className="action-buttons">
+            <button
+              className="action-btn edit-btn"
+              title="Edit"
+              onClick={() => router.push(`/category/edit/${cat._id}`)}
+            >
+              <i className="fi fi-rr-pencil" />
+            </button>
+            <button
+              className="action-btn delete-btn"
+              title="Delete"
+              onClick={() => setDeleteTarget(cat)}
+            >
+              <i className="fi fi-rr-trash" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [router]
+  );
+
+  if (error) {
+    return (
+      <div className="category-page">
+        <div className="alert alert-danger m-4">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="category-page">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="breadcrumb-section">
             <nav className="breadcrumb-nav">
               <a href="/" className="breadcrumb-item">
-                <i className="fi fi-rr-home"></i>
+                <i className="fi fi-rr-home" />
                 <span>Dashboard</span>
               </a>
               <span className="breadcrumb-separator">/</span>
@@ -74,60 +172,46 @@ const CategoryList = ({ categories }: { categories: Category[] }) => {
               <span className="breadcrumb-item active">List</span>
             </nav>
           </div>
-          <button
-            className="btn-create"
+          <Button
+            icon={<i className="fi fi-rr-plus" />}
             onClick={() => router.push("/category/add")}
           >
-            <i className="fi fi-rr-plus"></i>
-            <span>Create Category</span>
-          </button>
+            Create Category
+          </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#ecfdf5" }}>
-            <i
-              className="fi fi-rr-check-circle"
-              style={{ color: "#10b981" }}
-            ></i>
+            <i className="fi fi-rr-check-circle" style={{ color: "#10b981" }} />
           </div>
           <div className="stat-info">
-            <h3>
-              {categories.filter((cat) => cat.status === "approved").length}
-            </h3>
-            <p>Approved</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: "#fef3c7" }}>
-            <i className="fi fi-rr-clock" style={{ color: "#f59e0b" }}></i>
-          </div>
-          <div className="stat-info">
-            <h3>
-              {categories.filter((cat) => cat.status === "waiting").length}
-            </h3>
-            <p>Waiting</p>
+            <h3>{categories.filter((c) => c.isActive).length}</h3>
+            <p>Active</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#fee2e2" }}>
-            <i
-              className="fi fi-rr-cross-circle"
-              style={{ color: "#ef4444" }}
-            ></i>
+            <i className="fi fi-rr-cross-circle" style={{ color: "#ef4444" }} />
           </div>
           <div className="stat-info">
-            <h3>
-              {categories.filter((cat) => cat.status === "rejected").length}
-            </h3>
-            <p>Rejected</p>
+            <h3>{categories.filter((c) => !c.isActive).length}</h3>
+            <p>Inactive</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: "#fef3c7" }}>
+            <i className="fi fi-rr-folder" style={{ color: "#f59e0b" }} />
+          </div>
+          <div className="stat-info">
+            <h3>{categories.filter((c) => c.parentCategory).length}</h3>
+            <p>Sub-categories</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: "#e0e7ff" }}>
-            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }}></i>
+            <i className="fi fi-rr-apps" style={{ color: "#6366f1" }} />
           </div>
           <div className="stat-info">
             <h3>{categories.length}</h3>
@@ -136,136 +220,31 @@ const CategoryList = ({ categories }: { categories: Category[] }) => {
         </div>
       </div>
 
-      {/* Table Section */}
       <div className="table-container">
         <div className="table-header">
           <h2>All Categories</h2>
         </div>
-
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Category Name</th>
-                <th>Slug</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Active</th>
-                <th>Created Date</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat._id}>
-                  <td>
-                    <div className="category-name">
-                      <span>{cat.name}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="slug-text">{cat.slug}</span>
-                  </td>
-                  <td>
-                    <span className="description-text">
-                      {cat.description || "No description"}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="status-dropdown">
-                      <button
-                        className={`status-badge status-${getStatusColor(cat.status)}`}
-                        onClick={() => toggleDropdown(cat._id)}
-                      >
-                        <span>
-                          {cat.status.charAt(0).toUpperCase() +
-                            cat.status.slice(1)}
-                        </span>
-                        <i className="fi fi-rr-angle-small-down"></i>
-                      </button>
-                      {openDropdown === cat._id && (
-                        <div className="status-dropdown-menu">
-                          <button
-                            className="dropdown-item status-waiting"
-                            onClick={() =>
-                              handleStatusChange(cat._id, "waiting")
-                            }
-                          >
-                            <i className="fi fi-rr-clock"></i>
-                            <span>Waiting</span>
-                          </button>
-                          <button
-                            className="dropdown-item status-approved"
-                            onClick={() =>
-                              handleStatusChange(cat._id, "approved")
-                            }
-                          >
-                            <i className="fi fi-rr-check-circle"></i>
-                            <span>Approved</span>
-                          </button>
-                          <button
-                            className="dropdown-item status-rejected"
-                            onClick={() =>
-                              handleStatusChange(cat._id, "rejected")
-                            }
-                          >
-                            <i className="fi fi-rr-cross-circle"></i>
-                            <span>Rejected</span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      className={`active-badge ${cat.isActive ? "active" : "inactive"}`}
-                    >
-                      {cat.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="date-cell">
-                      <span className="date">{formatDate(cat.createdAt)}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button className="action-btn view-btn" title="View">
-                        <i className="fi fi-rr-eye"></i>
-                      </button>
-                      <button className="action-btn edit-btn" title="Edit">
-                        <i className="fi fi-rr-edit"></i>
-                      </button>
-                      <button className="action-btn delete-btn" title="Delete">
-                        <i className="fi fi-rr-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
+        <Table
+          columns={columns}
+          data={categories}
+          loading={loading}
+          emptyMessage="No categories found. Create your first category!"
+          rowKey={(c) => c._id}
+        />
         <div className="table-footer">
           <div className="showing-info">
-            Showing <strong>1-{categories.length}</strong> of{" "}
-            <strong>{categories.length}</strong> categories
-          </div>
-          <div className="pagination">
-            <button className="page-btn" disabled>
-              <i className="fi fi-rr-angle-left"></i>
-            </button>
-            <button className="page-btn active">1</button>
-            <button className="page-btn">2</button>
-            <button className="page-btn">3</button>
-            <button className="page-btn">
-              <i className="fi fi-rr-angle-right"></i>
-            </button>
+            Showing <strong>{categories.length}</strong> categories
           </div>
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        itemName={deleteTarget?.name || ""}
+      />
     </div>
   );
 };

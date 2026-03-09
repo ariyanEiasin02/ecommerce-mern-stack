@@ -1,15 +1,18 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
+
 interface CategoryCardProps {
     category: {
-        id: number;
+        id: number | string;
         name: string;
         image: string;
+        slug?: string;
     }
 }
 const CategoryCard = ({category}: CategoryCardProps) => {
   return (
-    <div className="category-card">
+    <Link href={`/all-products?category=${category.slug || category.name.toLowerCase()}`} className="category-card">
          <div className="image-wrapper">
             <Image 
           src={category.image} 
@@ -20,7 +23,7 @@ const CategoryCard = ({category}: CategoryCardProps) => {
         />
          </div>
         <h3>{category.name}</h3>
-    </div>
+    </Link>
   )
 }
 

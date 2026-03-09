@@ -78,10 +78,17 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ product }) => {
           <div className="product-tabs__pane product-tabs__pane--description">
             <div className="product-tabs__description">
               <h3 className="product-tabs__section-title">Product Description</h3>
-              <div 
-                className="product-tabs__description-text"
-                dangerouslySetInnerHTML={{ __html: product.description }}
-              />
+              <div className="product-tabs__description-text">
+                {/* Render as plain text to prevent XSS – strip any HTML the API may return */}
+                {product.description
+                  .replace(/<[^>]*>/g, ' ')
+                  .replace(/\s{2,}/g, ' ')
+                  .trim()
+                  .split('\n')
+                  .map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+              </div>
               
               {/* Key Features */}
               {product.specifications && product.specifications.length > 0 && (

@@ -1,23 +1,17 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { Product } from '@/types/product';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 import ProductCard from '../card/ProductCard';
 import SectionTop from '../common/SectionTop';
 
-const RelatedProducts: React.FC = ({ 
-}) => {
+interface RelatedProductsProps {
+  categorySlug?: string;
+  currentProductId?: string;
+}
+
+const RelatedProducts: React.FC<RelatedProductsProps> = ({ categorySlug, currentProductId }) => {
   return (
-     <section>
+    <section>
       <div className="container">
         <SectionTop title="Related Products"/>
         <div className="row g-4">
@@ -29,7 +23,7 @@ const RelatedProducts: React.FC = ({
                 originalPrice={89.0}
                 discount={23}
                 images={[
-                  "/hero1.webp",
+                  "https://global-img-cdn.1688.com/img/ibank/O1CN01UFWHhF1n7I4ZR0fkR_!!2220837545042-0-cib.310x310.jpg",
                   "https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg"
                 ]}
                 isTrending={true}

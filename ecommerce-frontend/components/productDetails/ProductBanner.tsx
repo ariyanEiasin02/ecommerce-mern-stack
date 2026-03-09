@@ -1,17 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ProductGallery from './ProductGallery';
 import PriceBox from './PriceBox';
 import VariantSelector from './VariantSelector';
 import ProductActions from './ProductActions';
 import { Product } from '@/types/product';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductBannerProps {
   product: Product;
 }
 
 const ProductBanner: React.FC<ProductBannerProps> = ({ product }) => {
+  const router = useRouter();
+  const { addToCart } = useCart();
+  const { toggleWishlist } = useWishlist();
+
   const [selectedColor, setSelectedColor] = useState<string>(
     product.colors?.find((c) => c.available)?.value ?? ''
   );
@@ -19,16 +26,29 @@ const ProductBanner: React.FC<ProductBannerProps> = ({ product }) => {
     product.sizes?.find((s) => s.available)?.value ?? ''
   );
 
-  const handleAddToCart = (qty: number, size?: string, color?: string) => {
-    console.log('Add to cart:', { productId: product.id, qty, size, color });
+  const handleAddToCart = async (qty: number) => {
+    try {
+      await addToCart(product.id, qty);
+    } catch (err) {
+      console.error('Failed to add to cart:', err);
+    }
   };
 
-  const handleBuyNow = (qty: number, size?: string, color?: string) => {
-    console.log('Buy now:', { productId: product.id, qty, size, color });
+  const handleBuyNow = async (qty: number) => {
+    try {
+      await addToCart(product.id, qty);
+      router.push('/cart');
+    } catch (err) {
+      console.error('Failed to buy now:', err);
+    }
   };
 
-  const handleAddToWishlist = () => {
-    console.log('Add to wishlist:', product.id);
+  const handleAddToWishlist = async () => {
+    try {
+      await toggleWishlist(product.id);
+    } catch (err) {
+      console.error('Failed to toggle wishlist:', err);
+    }
   };
 
   return (

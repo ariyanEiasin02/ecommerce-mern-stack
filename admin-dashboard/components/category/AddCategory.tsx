@@ -1,69 +1,84 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { adminCategoryService } from "@/services/adminService";
+import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+
+const QuillEditor = dynamic(() => import("@/components/common/QuillEditor"), { ssr: false });
 
 const AddCategory = () => {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     description: "",
-    isActive: false,
-    status: "waiting" as "waiting" | "rejected" | "approved",
+    parentCategory: "",
   });
-
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
 
-  // Auto-generate slug from name
+  useEffect(() => {
+    adminCategoryService.getAll()
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     setFormData({ ...formData, name, slug });
     if (errors.name) setErrors({ ...errors, name: "" });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validation
     const newErrors: { [key: string]: string } = {};
-    if (!formData.name.trim()) {
-      newErrors.name = "Category name is required";
-    }
-    if (!formData.slug.trim()) {
-      newErrors.slug = "Slug is required";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (!formData.name.trim()) newErrors.name = "Category name is required";
+    if (!formData.slug.trim()) newErrors.slug = "Slug is required";
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
     setIsSubmitting(true);
+    setApiError("");
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Category created:", formData);
-      setIsSubmitting(false);
+    try {
+      const fd = new FormData();
+      fd.append("name", formData.name);
+      fd.append("slug", formData.slug);
+      if (formData.description) fd.append("description", formData.description);
+      if (formData.parentCategory) fd.append("parentCategory", formData.parentCategory);
+      if (image) fd.append("image", image);
+
+      await adminCategoryService.create(fd);
+      toast.success("Category created successfully!");
       router.push("/category/all");
-    }, 1000);
+    } catch (err: any) {
+      setApiError(err?.response?.data?.message || "Failed to create category");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
-    setFormData({
-      name: "",
-      slug: "",
-      description: "",
-      isActive: false,
-      status: "waiting",
-    });
+    setFormData({ name: "", slug: "", description: "", parentCategory: "" });
+    setImage(null);
+    setImagePreview(null);
     setErrors({});
+    setApiError("");
   };
 
   return (
@@ -103,6 +118,7 @@ const AddCategory = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="form-card-body">
+              {apiError && <div className="alert alert-danger py-2 mb-3">{apiError}</div>}
               <div className="row">
                 <div className="col-lg-6">
                   <div className="form-group">
@@ -148,18 +164,49 @@ const AddCategory = () => {
                 </div>
               </div>
 
+              {/* Parent Category */}
+              <div className="row">
+                <div className="col-lg-6">
+                  <div className="form-group">
+                    <label htmlFor="parentCategory">Parent Category</label>
+                    <select
+                      id="parentCategory"
+                      className="form-control"
+                      value={formData.parentCategory}
+                      onChange={(e) => setFormData({ ...formData, parentCategory: e.target.value })}
+                    >
+                      <option value="">None (Top Level)</option>
+                      {categories.filter((c: any) => !c.parentCategory).map((cat: any) => (
+                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-lg-6">
+                  <div className="form-group">
+                    <label>Category Image</label>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="form-control"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    {imagePreview && (
+                      <img src={imagePreview} alt="Preview" style={{ width: 100, height: 100, objectFit: 'cover', marginTop: 8, borderRadius: 8 }} />
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Description */}
               <div className="form-group">
                 <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  className="form-control"
-                  rows={5}
-                  placeholder="Enter category description"
+                <QuillEditor
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(val) => setFormData({ ...formData, description: val })}
+                  placeholder="Enter category description..."
+                  minHeight={180}
                 />
               </div>
             </div>

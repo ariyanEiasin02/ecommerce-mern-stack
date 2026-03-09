@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   FaHeart, 
   FaShoppingCart, 
@@ -17,6 +18,16 @@ const Navbar: React.FC = () => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/all-products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+    }
+  };
 
   return (
     <>
@@ -29,34 +40,35 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Search Bar (Desktop Only) */}
-          <div className="navbar-search">
+          <form className="navbar-search" onSubmit={handleSearch}>
             <input 
               type="text" 
               placeholder="Search for products..." 
               className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="search-btn">
+            <button className="search-btn" type="submit">
               <FaSearch />
             </button>
-          </div>
+          </form>
 
           {/* Right Icons (Desktop Only) */}
           <div className="navbar-actions">
             <Link href="/wishlist" className="nav-icon-link">
               <FaHeart />
               <span className="icon-label">Wishlist</span>
-              <span className="badge">0</span>
+             
             </Link>
 
             <Link href="/cart" className="nav-icon-link">
               <FaShoppingCart />
               <span className="icon-label">Cart</span>
-              <span className="badge">3</span>
             </Link>
 
-            <Link href="/profile" className="nav-icon-link">
+            <Link href={"/login"} className="nav-icon-link">
               <FaUser />
-              <span className="icon-label">Account</span>
+              <span className="icon-label">Login</span>
             </Link>
           </div>
 
@@ -85,14 +97,18 @@ const Navbar: React.FC = () => {
         {/* Mobile Search Bar */}
         {isSearchOpen && (
           <div className="mobile-search">
-            <input 
-              type="text" 
-              placeholder="Search for products..." 
-              className="mobile-search-input"
-            />
-            <button className="mobile-search-btn">
-              <FaSearch />
-            </button>
+            <form onSubmit={handleSearch} style={{ display: 'contents' }}>
+              <input 
+                type="text" 
+                placeholder="Search for products..." 
+                className="mobile-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="mobile-search-btn" type="submit">
+                <FaSearch />
+              </button>
+            </form>
           </div>
         )}
       </header>
@@ -104,7 +120,7 @@ const Navbar: React.FC = () => {
           <span>Home</span>
         </Link>
 
-        <Link href="/shop" className="bottom-nav-item">
+        <Link href="/all-products" className="bottom-nav-item">
           <FaStore />
           <span>Shop</span>
         </Link>
@@ -112,7 +128,6 @@ const Navbar: React.FC = () => {
         <Link href="/cart" className="bottom-nav-item">
           <FaShoppingCart />
           <span>Cart</span>
-          <span className="bottom-badge">3</span>
         </Link>
 
         <Link href="/wishlist" className="bottom-nav-item">

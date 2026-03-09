@@ -1,5 +1,7 @@
 "use client";
 import React from "react";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import NotificationBell from "./NotificationBell";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -7,6 +9,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+  const { user, logout } = useAdminAuth();
+
   return (
     <header className="admin-header">
       <div className="header-content">
@@ -29,10 +33,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <input type="text" placeholder="Search..." />
           </div>
 
-          <button className="header-icon-btn" aria-label="Notifications">
-            <i className="fi fi-rr-bell"></i>
-            <span className="badge">3</span>
-          </button>
+          <NotificationBell />
 
           {/* User Profile */}
           <div className="user-profile">
@@ -41,10 +42,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <i className="fi fi-rr-user"></i>
               </div>
               <div className="profile-info">
-                <span className="user-name">John Doe</span>
+                <span className="user-name">{user?.name || "Admin"}</span>
                 <span className="user-role">Administrator</span>
               </div>
-              <i className="fi fi-rr-angle-small-down"></i>
+              <button
+                onClick={logout}
+                className="logout-btn"
+                aria-label="Logout"
+                title="Logout"
+              >
+                <i className="fi fi-rr-sign-out-alt"></i>
+              </button>
             </div>
           </div>
         </div>
