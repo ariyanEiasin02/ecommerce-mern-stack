@@ -66,6 +66,7 @@ export interface Product {
   
   // Inventory
   stock: number;
+  sold: number;
   sku: string;
   availability: 'in_stock' | 'low_stock' | 'out_of_stock' | 'pre_order';
   
@@ -107,8 +108,7 @@ export interface Product {
   featured?: boolean;
   bestseller?: boolean;
   newArrival?: boolean;
-  relatedProducts?: string[];
-  soldCount?: number;
+  relatedProducts?: string[]; 
   seller?: ProductSeller;
 }
 

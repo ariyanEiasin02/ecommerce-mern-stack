@@ -11,6 +11,8 @@ interface ProductCardProps {
   discount?: number;
   images: string[];
   isTrending?: boolean;
+  sold?: number;
+  total?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -21,6 +23,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   discount,
   images,
   isTrending = false,
+  sold = 0,
+  total = 100,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -108,7 +112,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
         <h3 className="product-name">{name}</h3>
-          <SoldBar sold={750} total={1000} />
+        <div className="product-details__spacer" />
+        <SoldBar sold={sold} total={total} />
       </div>
     </div>
   );

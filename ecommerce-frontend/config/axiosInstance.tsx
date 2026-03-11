@@ -2,10 +2,36 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 
-const API_URL: string =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.API_URL ||
-  "http://localhost:5000/api";
+const rawApiUrl =
+  process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "http://localhost:5000/api";
+
+function normalizeApiUrl(input: string) {
+  try {
+    const url = new URL(input);
+    // If using localhost in development, prefer plain http to avoid TLS mismatch
+    if (
+      (url.hostname === 'localhost' || url.hostname === '127.0.0.1') &&
+      (process.env.NODE_ENV !== 'production')
+    ) {
+      url.protocol = 'http:';
+      return url.toString().replace(/\/+$/, '');
+    }
+    return url.toString().replace(/\/+$/, '');
+  } catch {
+    // If input is a path like "/api", resolve relative to window origin when available
+    if (typeof window !== 'undefined') {
+      try {
+        const resolved = new URL(input, window.location.origin);
+        return resolved.toString().replace(/\/+$/, '');
+      } catch {
+        return input;
+      }
+    }
+    return input;
+  }
+}
+
+const API_URL: string = normalizeApiUrl(rawApiUrl);
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -53,7 +79,15 @@ axiosInstance.interceptors.response.use(
         }
       }
     } else if (error.request) {
-      console.error("API no response:", error.request);
+      // Network/transport error (no response). EPROTO often indicates TLS/protocol mismatch.
+      if ((error as any)?.code === 'EPROTO') {
+        console.error(
+          'Network TLS/protocol error (EPROTO). Check API_URL protocol (http vs https) and server TLS config. API no response:',
+          error.request,
+        );
+      } else {
+        console.error('API no response:', error.request);
+      }
     } else {
       console.error("API request error:", error.message);
     }

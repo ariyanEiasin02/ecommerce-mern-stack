@@ -1,25 +1,44 @@
-import React from "react";
-import SectionTop from "../common/SectionTop";
-import ProductCard from "../card/ProductCard";
+import React from 'react';
+import SectionTop from '../common/SectionTop';
+import ProductCard from '../card/ProductCard';
+import { ProductItem } from '@/types/home';
 
-const TrendingProducts = () => {
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000';
+
+function resolveImages(images?: string[]): string[] {
+  if (!images || images.length === 0) return ['/hero1.webp'];
+  return images.map((src) => {
+    if (src.startsWith('http')) return src;
+    if (src.startsWith('/uploads')) return `${BACKEND_URL}${src}`;
+    return src;
+  });
+}
+
+interface TrendingProductsProps {
+  products?: ProductItem[];
+}
+
+const TrendingProducts = ({ products }: TrendingProductsProps) => {
+  const displayProducts = products && products.length > 0 ? products : [];
+
   return (
     <section>
       <div className="container">
-        <SectionTop title="Trending Products"/>
+        <SectionTop title="Trending Products" />
         <div className="row g-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={item}>
+          {displayProducts.map((product,index) => (
+            <div className="col-xl-2-5 col-lg-3 col-md-4 col-6" key={index}>
               <ProductCard
-                name="Basic High-Neck Puff Jacket"
-                price={69.0}
-                originalPrice={89.0}
-                discount={23}
-                images={[
-                  "/hero1.webp",
-                  "https://klbtheme.com/clotya/wp-content/uploads/2022/04/basic3-500x750.jpeg"
-                ]}
-                isTrending={true}
+                id={product._id}
+                name={product.name}
+                price={product.price}
+                originalPrice={product.originalPrice}
+                discount={product.discount}
+                images={resolveImages(product.images)}
+                isTrending={product.isTrending ?? true}
+               sold={product?.sold}
+                total={product?.stock}
               />
             </div>
           ))}
